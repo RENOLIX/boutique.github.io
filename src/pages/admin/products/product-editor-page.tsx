@@ -1,6 +1,6 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Eye } from "lucide-react";
+import { ArrowLeft, Eye, ImagePlus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,13 +8,15 @@ import { Label } from "@/components/ui/label";
 import { useShop } from "@/hooks/use-shop";
 import type { ProductCategory } from "@/types";
 
+const MAX_IMAGES = 8;
+
 const EMPTY_FORM = {
   name: "",
   description: "",
   price: "",
   comparePrice: "",
   category: "femme" as ProductCategory,
-  images: "",
+  images: [] as string[],
   sizes: "XS,S,M,L,XL",
   colors: "Noir,Blanc",
   stock: "10",
@@ -31,6 +33,48 @@ function parseCsv(value: string) {
     .filter(Boolean);
 }
 
+function readFileAsDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ""));
+    reader.onerror = () => reject(new Error("Lecture du fichier impossible."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadImage(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("Chargement de l'image impossible."));
+    image.src = src;
+  });
+}
+
+async function optimizeImageFile(file: File) {
+  const originalDataUrl = await readFileAsDataUrl(file);
+  const image = await loadImage(originalDataUrl);
+
+  const maxDimension = 1600;
+  const scale = Math.min(1, maxDimension / image.width, maxDimension / image.height);
+  const width = Math.max(1, Math.round(image.width * scale));
+  const height = Math.max(1, Math.round(image.height * scale));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+
+  const context = canvas.getContext("2d");
+  if (!context) {
+    return originalDataUrl;
+  }
+
+  context.drawImage(image, 0, 0, width, height);
+
+  const outputType = file.type === "image/png" ? "image/png" : "image/jpeg";
+  return canvas.toDataURL(outputType, 0.86);
+}
+
 export default function AdminProductEditorPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -40,6 +84,7 @@ export default function AdminProductEditorPage() {
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
 
   useEffect(() => {
     if (isNew) {
@@ -57,7 +102,7 @@ export default function AdminProductEditorPage() {
       price: String(product.price),
       comparePrice: product.comparePrice ? String(product.comparePrice) : "",
       category: product.category,
-      images: product.images.join("\n"),
+      images: product.images,
       sizes: product.sizes.join(","),
       colors: product.colors.join(","),
       stock: String(product.stock),
@@ -80,6 +125,49 @@ export default function AdminProductEditorPage() {
     }));
   };
 
+  const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    if (!files.length) {
+      return;
+    }
+
+    setUploadingImages(true);
+
+    try {
+      const convertedImages = await Promise.all(files.map((file) => optimizeImageFile(file)));
+
+      let extraImagesIgnored = false;
+      setForm((current) => {
+        const remainingSlots = Math.max(0, MAX_IMAGES - current.images.length);
+        const acceptedImages = convertedImages.slice(0, remainingSlots);
+        extraImagesIgnored = acceptedImages.length < convertedImages.length;
+
+        return {
+          ...current,
+          images: [...current.images, ...acceptedImages],
+        };
+      });
+
+      if (extraImagesIgnored) {
+        toast.error(`Maximum ${MAX_IMAGES} images par produit.`);
+      } else {
+        toast.success("Images ajoutees au produit.");
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Import des images impossible.");
+    } finally {
+      setUploadingImages(false);
+      event.target.value = "";
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setForm((current) => ({
+      ...current,
+      images: current.images.filter((_, imageIndex) => imageIndex !== index),
+    }));
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -96,7 +184,7 @@ export default function AdminProductEditorPage() {
       price: Number(form.price),
       comparePrice: form.comparePrice ? Number(form.comparePrice) : undefined,
       category: form.category,
-      images: parseCsv(form.images),
+      images: form.images.filter(Boolean),
       sizes: parseCsv(form.sizes),
       colors: parseCsv(form.colors),
       stock: Number(form.stock),
@@ -107,11 +195,11 @@ export default function AdminProductEditorPage() {
     try {
       if (isNew) {
         const created = await createProduct(payload);
-        toast.success("Produit créé");
+        toast.success("Produit cree");
         navigate(`/admin/products/${created.id}`, { replace: true });
       } else if (id) {
         await updateProduct(id, payload);
-        toast.success("Produit mis à jour");
+        toast.success("Produit mis a jour");
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Enregistrement impossible");
@@ -125,7 +213,7 @@ export default function AdminProductEditorPage() {
       <div className="p-8">
         <h1 className="font-serif text-2xl font-bold mb-3">Produit introuvable</h1>
         <Link to="/admin/products" className="text-sm text-muted-foreground underline">
-          Retour à la liste
+          Retour a la liste
         </Link>
       </div>
     );
@@ -146,7 +234,7 @@ export default function AdminProductEditorPage() {
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             {isNew
-              ? "Créez un nouvel article. Sa page publique sera générée automatiquement."
+              ? "Creez un nouvel article. Sa page publique sera generee automatiquement."
               : "Modifiez les informations du produit existant."}
           </p>
         </div>
@@ -172,7 +260,7 @@ export default function AdminProductEditorPage() {
         </div>
 
         <div className="space-y-1">
-          <Label>Prix barré (DZD)</Label>
+          <Label>Prix barre (DZD)</Label>
           <Input
             name="comparePrice"
             type="number"
@@ -182,7 +270,7 @@ export default function AdminProductEditorPage() {
         </div>
 
         <div className="md:col-span-2 space-y-1">
-          <Label>Catégorie</Label>
+          <Label>Categorie</Label>
           <select
             name="category"
             value={form.category}
@@ -208,15 +296,67 @@ export default function AdminProductEditorPage() {
           />
         </div>
 
-        <div className="md:col-span-2 space-y-1">
-          <Label>Images (une URL par ligne)</Label>
-          <textarea
-            name="images"
-            value={form.images}
-            onChange={handleChange}
-            rows={5}
-            className="w-full border border-input rounded-none px-3 py-2 text-sm bg-background resize-none"
-          />
+        <div className="md:col-span-2 space-y-4">
+          <div className="flex flex-col gap-1">
+            <Label>Images du produit</Label>
+            <p className="text-xs text-muted-foreground">
+              Ajoute des images directement depuis ton PC, ton telephone ou ta galerie.
+              La premiere image sera utilisee comme image principale.
+            </p>
+          </div>
+
+          <label className="flex flex-col items-center justify-center gap-3 border border-dashed border-border px-6 py-10 text-center cursor-pointer hover:border-foreground transition-colors">
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={handleImageUpload}
+              disabled={uploadingImages || form.images.length >= MAX_IMAGES}
+            />
+            <div className="w-12 h-12 border border-border flex items-center justify-center">
+              <ImagePlus className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">
+                {uploadingImages ? "Import des images..." : "Choisir des images"}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                JPG, PNG ou WEBP. Maximum {MAX_IMAGES} images par produit.
+              </p>
+            </div>
+          </label>
+
+          {form.images.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {form.images.map((image, index) => (
+                <div key={`${index}-${image.slice(0, 24)}`} className="space-y-2">
+                  <div className="relative aspect-[3/4] overflow-hidden bg-muted border border-border">
+                    <img
+                      src={image}
+                      alt={`Produit ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute top-2 right-2 w-8 h-8 bg-white/90 text-foreground flex items-center justify-center border border-border hover:bg-white"
+                      aria-label={`Supprimer l'image ${index + 1}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {index === 0 ? "Image principale" : `Image ${index + 1}`}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Aucune image ajoutee pour le moment.
+            </p>
+          )}
         </div>
 
         <div className="space-y-1">
@@ -256,7 +396,7 @@ export default function AdminProductEditorPage() {
         </div>
 
         <div className="md:col-span-2 flex flex-wrap gap-3 pt-3">
-          <Button type="submit" size="lg" disabled={saving}>
+          <Button type="submit" size="lg" disabled={saving || uploadingImages}>
             {saving ? "Enregistrement..." : "Enregistrer"}
           </Button>
           <Link to="/admin/products">

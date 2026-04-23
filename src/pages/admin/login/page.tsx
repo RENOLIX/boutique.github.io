@@ -10,8 +10,7 @@ import { hasSupabaseConfig } from "@/lib/supabase";
 
 export default function AdminLoginPage() {
   const navigate = useNavigate();
-  const { session, loading, signIn, signUp } = useAuth();
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const { session, loading, signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -25,30 +24,14 @@ export default function AdminLoginPage() {
     setSubmitting(true);
 
     try {
-      if (mode === "login") {
-        const { error } = await signIn(email, password);
-        if (error) {
-          toast.error(error);
-          return;
-        }
-
-        toast.success("Connexion reussie");
-        navigate("/admin/products", { replace: true });
-        return;
-      }
-
-      const { error, needsEmailConfirmation } = await signUp(email, password);
+      const { error } = await signIn(email, password);
       if (error) {
         toast.error(error);
         return;
       }
 
-      if (needsEmailConfirmation) {
-        toast.success("Compte cree. Verifie ton email pour confirmer l'acces admin.");
-      } else {
-        toast.success("Compte admin cree et connecte.");
-        navigate("/admin/products", { replace: true });
-      }
+      toast.success("Connexion reussie");
+      navigate("/admin/products", { replace: true });
     } finally {
       setSubmitting(false);
     }
@@ -63,38 +46,13 @@ export default function AdminLoginPage() {
           </div>
           <h1 className="font-serif text-3xl font-bold mb-2">Administration</h1>
           <p className="text-sm text-muted-foreground">
-            Connecte-toi avec ton email et ton mot de passe admin.
+            Connexion admin uniquement avec email et mot de passe.
           </p>
           {!hasSupabaseConfig ? (
             <p className="text-xs text-red-600 mt-3">
               Supabase n'est pas encore configure dans l'application.
             </p>
           ) : null}
-        </div>
-
-        <div className="flex gap-2 mb-6">
-          <button
-            type="button"
-            onClick={() => setMode("login")}
-            className={
-              mode === "login"
-                ? "flex-1 border border-foreground bg-foreground text-background py-2 text-xs uppercase tracking-widest"
-                : "flex-1 border border-border py-2 text-xs uppercase tracking-widest"
-            }
-          >
-            Se connecter
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("signup")}
-            className={
-              mode === "signup"
-                ? "flex-1 border border-foreground bg-foreground text-background py-2 text-xs uppercase tracking-widest"
-                : "flex-1 border border-border py-2 text-xs uppercase tracking-widest"
-            }
-          >
-            Creer admin
-          </button>
         </div>
 
         <form className="space-y-5" onSubmit={handleSubmit}>
@@ -122,18 +80,13 @@ export default function AdminLoginPage() {
           </div>
 
           <Button type="submit" size="lg" className="w-full" disabled={submitting}>
-            {submitting
-              ? "Patiente..."
-              : mode === "login"
-                ? "Se connecter"
-                : "Creer le compte admin"}
+            {submitting ? "Patiente..." : "Se connecter"}
           </Button>
         </form>
 
         <p className="text-xs text-muted-foreground mt-6 leading-relaxed">
-          Si c'est le premier acces, clique sur "Creer admin" et choisis toi-meme
-          l'email et le mot de passe du compte. Le premier compte cree devient
-          admin automatiquement une fois les tables Supabase en place.
+          Pour ajouter un autre admin, cree d'abord son utilisateur dans Supabase
+          Auth puis ajoute son `user_id` et son email dans la table `admin_users`.
         </p>
       </div>
     </div>
