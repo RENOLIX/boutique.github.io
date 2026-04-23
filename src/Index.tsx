@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { ArrowRight, ShieldCheck, Sparkles, Truck } from "lucide-react";
 import { toast } from "sonner";
+import DoorIntro from "@/components/shop/DoorIntro";
 import Header from "@/components/shop/Header";
 import Footer from "@/components/shop/Footer";
 import ProductCard from "@/components/shop/ProductCard";
@@ -55,6 +56,7 @@ export default function Index() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <DoorIntro />
       <Header />
 
       <section className="relative h-[82vh] min-h-[620px] overflow-hidden">

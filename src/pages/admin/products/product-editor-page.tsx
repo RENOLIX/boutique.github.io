@@ -80,7 +80,7 @@ export default function AdminProductEditorPage() {
     }));
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!form.name.trim() || !form.price.trim()) {
@@ -106,13 +106,15 @@ export default function AdminProductEditorPage() {
 
     try {
       if (isNew) {
-        const created = createProduct(payload);
+        const created = await createProduct(payload);
         toast.success("Produit créé");
         navigate(`/admin/products/${created.id}`, { replace: true });
       } else if (id) {
-        updateProduct(id, payload);
+        await updateProduct(id, payload);
         toast.success("Produit mis à jour");
       }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Enregistrement impossible");
     } finally {
       setSaving(false);
     }

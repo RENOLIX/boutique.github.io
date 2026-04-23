@@ -7,13 +7,17 @@ import { Button } from "@/components/ui/button";
 export default function AdminProductsPage() {
   const { products, removeProduct } = useShop();
 
-  const handleDelete = (id: string, name: string) => {
+  const handleDelete = async (id: string, name: string) => {
     if (!window.confirm(`Supprimer "${name}" ?`)) {
       return;
     }
 
-    removeProduct(id);
-    toast.success("Produit supprimé");
+    try {
+      await removeProduct(id);
+      toast.success("Produit supprimé");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Suppression impossible");
+    }
   };
 
   return (
@@ -130,7 +134,7 @@ export default function AdminProductsPage() {
                       <button
                         type="button"
                         className="h-8 w-8 inline-flex items-center justify-center text-red-600 hover:bg-red-50"
-                        onClick={() => handleDelete(product.id, product.name)}
+                        onClick={() => void handleDelete(product.id, product.name)}
                         title="Supprimer"
                       >
                         <Trash2 className="h-3.5 w-3.5" />

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { useShop } from "@/hooks/use-shop";
 import type { OrderStatus } from "@/types";
 import { cn } from "@/lib/utils";
@@ -62,7 +63,7 @@ function OrderRow({
     country: string;
   };
   paymentMethod: string;
-  onStatusChange: (id: string, nextStatus: OrderStatus) => void;
+  onStatusChange: (id: string, nextStatus: OrderStatus) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -87,7 +88,14 @@ function OrderRow({
         <td className="px-4 py-3" onClick={(event) => event.stopPropagation()}>
           <select
             value={status}
-            onChange={(event) => onStatusChange(orderId, event.target.value as OrderStatus)}
+            onChange={async (event) => {
+              try {
+                await onStatusChange(orderId, event.target.value as OrderStatus);
+                toast.success("Statut mis à jour");
+              } catch (error) {
+                toast.error(error instanceof Error ? error.message : "Mise à jour impossible");
+              }
+            }}
             className="border border-input bg-background px-2 py-1 text-xs"
           >
             {STATUSES.map((entry) => (

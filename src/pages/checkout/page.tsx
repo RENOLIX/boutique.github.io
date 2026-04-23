@@ -73,7 +73,7 @@ export default function CheckoutPage() {
     setLoading(true);
 
     try {
-      createOrder({
+      await createOrder({
         customerName: `${data.firstName} ${data.lastName}`,
         customerEmail: data.email,
         customerPhone: data.phone,

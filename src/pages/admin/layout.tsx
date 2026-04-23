@@ -1,6 +1,8 @@
 import type { ComponentType } from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Package, ShoppingBag, Store } from "lucide-react";
+import { Navigate, Outlet, Link, useLocation } from "react-router-dom";
+import { LayoutDashboard, LogOut, Package, ShoppingBag, Store } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/providers/auth";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -35,6 +37,46 @@ function AdminNavLink({
 }
 
 export default function AdminLayout() {
+  const { loading, session, isAdmin, signOut } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-sm text-muted-foreground">Chargement de la session admin...</p>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <Navigate to="/admin/login" replace />;
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="text-center max-w-sm">
+          <LayoutDashboard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h1 className="font-serif text-2xl font-bold mb-2">Accès refusé</h1>
+          <p className="text-sm text-muted-foreground mb-6">
+            Ce compte est bien connecté, mais il n'a pas les droits admin.
+          </p>
+          <div className="flex justify-center gap-3">
+            <Link to="/" className="text-xs tracking-widest uppercase underline">
+              Retour boutique
+            </Link>
+            <button
+              type="button"
+              onClick={() => void signOut()}
+              className="text-xs tracking-widest uppercase underline"
+            >
+              Déconnexion
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex bg-background">
       <aside className="w-64 border-r border-border flex flex-col bg-sidebar shrink-0">
@@ -52,6 +94,14 @@ export default function AdminLayout() {
         </nav>
 
         <div className="p-4 border-t border-border">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start rounded-none px-0 mb-3 text-xs tracking-widest uppercase"
+            onClick={() => void signOut()}
+          >
+            <LogOut className="h-4 w-4" /> Déconnexion
+          </Button>
           <Link
             to="/"
             className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors tracking-widest uppercase"
