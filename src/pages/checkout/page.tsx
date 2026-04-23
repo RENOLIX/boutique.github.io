@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Truck } from "lucide-react";
+import { Home, Loader2, Truck } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/shop/Header";
 import Footer from "@/components/shop/Footer";
@@ -12,35 +12,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCart } from "@/hooks/use-cart";
 import { useShop } from "@/hooks/use-shop";
-
-const WILAYAS = [
-  "Alger Centre",
-  "Bab El Oued",
-  "El Harrach",
-  "Hussein Dey",
-  "Kouba",
-  "Birkhadem",
-  "Hydra",
-  "Ben Aknoun",
-  "Chéraga",
-  "Staouéli",
-  "Draria",
-  "Ouled Fayet",
-  "Rouiba",
-  "Dar El Beïda",
-  "Bordj El Kiffan",
-  "Ain Benian",
-  "Bouzaréah",
-  "El Mouradia",
-];
+import {
+  WILAYA_SHIPPING_RATES,
+  getDeliveryMethodLabel,
+  getWilayaLabel,
+} from "@/lib/shipping";
 
 const schema = z.object({
-  firstName: z.string().min(2, "Prénom requis"),
+  firstName: z.string().min(2, "Prenom requis"),
   lastName: z.string().min(2, "Nom requis"),
   email: z.string().email("Email invalide"),
-  phone: z.string().min(9, "Numéro invalide"),
+  phone: z.string().min(9, "Numero invalide"),
   wilaya: z.string().min(1, "Veuillez choisir une wilaya"),
   address: z.string().min(5, "Adresse requise"),
+  deliveryMethod: z.enum(["domicile", "bureau"], {
+    message: "Veuillez choisir un mode de livraison",
+  }),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -54,10 +41,23 @@ export default function CheckoutPage() {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      deliveryMethod: "domicile",
+      wilaya: "",
+    },
   });
+
+  const selectedWilayaCode = watch("wilaya");
+  const selectedDeliveryMethod = watch("deliveryMethod");
+  const selectedWilaya =
+    WILAYA_SHIPPING_RATES.find((wilaya) => wilaya.code === selectedWilayaCode) ?? null;
+  const shippingPrice = selectedWilaya ? selectedWilaya[selectedDeliveryMethod] : 0;
+  const totalWithShipping = totalPrice + shippingPrice;
 
   useEffect(() => {
     if (items.length === 0) {
@@ -70,6 +70,16 @@ export default function CheckoutPage() {
   }
 
   const onSubmit = async (data: FormData) => {
+    const wilaya =
+      WILAYA_SHIPPING_RATES.find((entry) => entry.code === data.wilaya) ?? null;
+
+    if (!wilaya) {
+      toast.error("Veuillez choisir une wilaya valide.");
+      return;
+    }
+
+    const deliveryPrice = wilaya[data.deliveryMethod];
+
     setLoading(true);
 
     try {
@@ -86,23 +96,25 @@ export default function CheckoutPage() {
           color: item.color,
         })),
         subtotal: totalPrice,
-        shipping: 0,
-        total: totalPrice,
+        shipping: deliveryPrice,
+        total: totalPrice + deliveryPrice,
         shippingAddress: {
           firstName: data.firstName,
           lastName: data.lastName,
           address: data.address,
-          city: data.wilaya,
-          postalCode: "—",
-          country: "Algérie",
+          city: getWilayaLabel(wilaya),
+          postalCode: wilaya.code,
+          country: "Algerie",
+          wilayaCode: wilaya.code,
+          deliveryMethod: data.deliveryMethod,
         },
-        paymentMethod: "Paiement à la livraison",
+        paymentMethod: "Paiement a la livraison",
       });
 
       clearCart();
       navigate("/checkout/success");
     } catch {
-      toast.error("Une erreur est survenue, veuillez réessayer.");
+      toast.error("Une erreur est survenue, veuillez reessayer.");
     } finally {
       setLoading(false);
     }
@@ -122,7 +134,7 @@ export default function CheckoutPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label>Prénom</Label>
+                <Label>Prenom</Label>
                 <Input placeholder="Mohamed" {...register("firstName")} />
                 {errors.firstName ? (
                   <p className="text-xs text-red-600">{errors.firstName.message}</p>
@@ -146,7 +158,7 @@ export default function CheckoutPage() {
             </div>
 
             <div className="space-y-1">
-              <Label>Numéro de téléphone</Label>
+              <Label>Numero de telephone</Label>
               <Input placeholder="0550 000 000" {...register("phone")} />
               {errors.phone ? (
                 <p className="text-xs text-red-600">{errors.phone.message}</p>
@@ -154,15 +166,15 @@ export default function CheckoutPage() {
             </div>
 
             <div className="space-y-1">
-              <Label>Wilaya (commune)</Label>
+              <Label>Wilaya</Label>
               <select
                 {...register("wilaya")}
                 className="w-full border border-input rounded-none px-3 py-2 text-sm bg-background focus:outline-none focus:border-foreground transition-colors"
               >
                 <option value="">-- Choisir votre wilaya --</option>
-                {WILAYAS.map((wilaya) => (
-                  <option key={wilaya} value={wilaya}>
-                    {wilaya}
+                {WILAYA_SHIPPING_RATES.map((wilaya) => (
+                  <option key={wilaya.code} value={wilaya.code}>
+                    {getWilayaLabel(wilaya)}
                   </option>
                 ))}
               </select>
@@ -171,12 +183,82 @@ export default function CheckoutPage() {
               ) : null}
             </div>
 
+            <div className="space-y-3">
+              <Label>Mode de livraison</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {([
+                  {
+                    value: "domicile",
+                    title: "Livraison a domicile",
+                    icon: Home,
+                  },
+                  {
+                    value: "bureau",
+                    title: "Livraison bureau",
+                    icon: Truck,
+                  },
+                ] as const).map(({ value, title, icon: Icon }) => {
+                  const currentPrice = selectedWilaya ? selectedWilaya[value] : null;
+                  const active = selectedDeliveryMethod === value;
+
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setValue("deliveryMethod", value, { shouldValidate: true })}
+                      className={`border px-4 py-4 text-left transition-colors ${
+                        active
+                          ? "border-foreground bg-foreground text-background"
+                          : "border-border bg-background hover:border-foreground"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 mb-3">
+                        <div
+                          className={`w-10 h-10 border flex items-center justify-center ${
+                            active ? "border-white/30" : "border-border"
+                          }`}
+                        >
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">{title}</p>
+                          <p
+                            className={`text-xs ${
+                              active ? "text-background/70" : "text-muted-foreground"
+                            }`}
+                          >
+                            {selectedWilaya
+                              ? `${currentPrice?.toLocaleString("fr-DZ")} DZD`
+                              : "Choisissez une wilaya"}
+                          </p>
+                        </div>
+                      </div>
+                      <p
+                        className={`text-xs leading-relaxed ${
+                          active ? "text-background/70" : "text-muted-foreground"
+                        }`}
+                      >
+                        {value === "domicile"
+                          ? "Reception directe a l'adresse indiquee."
+                          : "Retrait en bureau de livraison selon la wilaya choisie."}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+              {errors.deliveryMethod ? (
+                <p className="text-xs text-red-600">{errors.deliveryMethod.message}</p>
+              ) : null}
+            </div>
+
+            <input type="hidden" {...register("deliveryMethod")} />
+
             <div className="space-y-1">
-              <Label>Adresse complète</Label>
+              <Label>Adresse complete</Label>
               <textarea
                 {...register("address")}
                 rows={3}
-                placeholder="Cité, rue, numéro d'appartement, bâtiment..."
+                placeholder="Rue, quartier, immeuble, numero d'appartement ou point de retrait souhaite..."
                 className="w-full border border-input rounded-none px-3 py-2 text-sm bg-background focus:outline-none focus:border-foreground transition-colors resize-none"
               />
               {errors.address ? (
@@ -192,11 +274,11 @@ export default function CheckoutPage() {
                 <div className="flex items-center gap-3 mb-2">
                   <Truck className="h-5 w-5 shrink-0" />
                   <span className="text-sm font-semibold tracking-wide">
-                    Paiement à la livraison (Cash)
+                    Paiement a la livraison (Cash)
                   </span>
                 </div>
                 <p className="text-xs text-background/70 ml-8">
-                  Payez en espèces directement au livreur. Livraison dans Alger.
+                  Payez en especes directement a la reception de votre commande.
                 </p>
               </div>
             </div>
@@ -207,7 +289,7 @@ export default function CheckoutPage() {
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Traitement...
                 </>
               ) : (
-                `Confirmer — ${totalPrice.toLocaleString("fr-DZ")} DZD`
+                `Confirmer - ${totalWithShipping.toLocaleString("fr-DZ")} DZD`
               )}
             </Button>
           </div>
@@ -233,7 +315,7 @@ export default function CheckoutPage() {
                     <p className="text-xs text-muted-foreground">
                       {item.color} / {item.size}
                     </p>
-                    <p className="text-xs text-muted-foreground">Qté : {item.quantity}</p>
+                    <p className="text-xs text-muted-foreground">Qte : {item.quantity}</p>
                   </div>
                   <p className="text-sm font-semibold shrink-0 whitespace-nowrap">
                     {(item.price * item.quantity).toLocaleString("fr-DZ")} DZD
@@ -249,15 +331,27 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>Livraison</span>
-                <span className="text-green-600 font-medium">Gratuite</span>
+                <span>
+                  {selectedWilaya
+                    ? `${shippingPrice.toLocaleString("fr-DZ")} DZD`
+                    : "Choisissez une wilaya"}
+                </span>
+              </div>
+              <div className="flex justify-between text-muted-foreground">
+                <span>Mode</span>
+                <span>
+                  {selectedWilaya
+                    ? getDeliveryMethodLabel(selectedDeliveryMethod)
+                    : "Choisissez une wilaya"}
+                </span>
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>Paiement</span>
-                <span>À la livraison</span>
+                <span>A la livraison</span>
               </div>
               <div className="flex justify-between font-bold text-base pt-2 border-t border-border">
                 <span>Total</span>
-                <span>{totalPrice.toLocaleString("fr-DZ")} DZD</span>
+                <span>{totalWithShipping.toLocaleString("fr-DZ")} DZD</span>
               </div>
             </div>
 
@@ -265,9 +359,13 @@ export default function CheckoutPage() {
               <p className="font-medium text-foreground text-[11px] tracking-widest uppercase mb-2">
                 Infos livraison
               </p>
-              <p>Délai estimé : 2 à 5 jours ouvrables</p>
-              <p>Plusieurs communes d'Alger couvertes</p>
-              <p>Suivi de commande par téléphone</p>
+              <p>Delai estime : 2 a 5 jours ouvrables</p>
+              <p>
+                {selectedWilaya
+                  ? `Tarif calcule pour ${getWilayaLabel(selectedWilaya)}`
+                  : "Le tarif se calcule selon la wilaya choisie"}
+              </p>
+              <p>Choix disponible entre domicile et bureau</p>
             </div>
           </div>
         </form>

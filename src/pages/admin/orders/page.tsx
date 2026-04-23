@@ -2,6 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useShop } from "@/hooks/use-shop";
 import type { OrderStatus } from "@/types";
+import { getDeliveryMethodLabel } from "@/lib/shipping";
 import { cn } from "@/lib/utils";
 
 const STATUSES: { value: OrderStatus; label: string; color: string }[] = [
@@ -34,6 +35,7 @@ function OrderRow({
   customerEmail,
   createdAt,
   total,
+  shipping,
   status,
   items,
   shippingAddress,
@@ -46,6 +48,7 @@ function OrderRow({
   customerEmail: string;
   createdAt: string;
   total: number;
+  shipping: number;
   status: OrderStatus;
   items: {
     productName: string;
@@ -61,6 +64,8 @@ function OrderRow({
     city: string;
     postalCode: string;
     country: string;
+    wilayaCode?: string;
+    deliveryMethod?: "domicile" | "bureau";
   };
   paymentMethod: string;
   onStatusChange: (id: string, nextStatus: OrderStatus) => Promise<void>;
@@ -140,6 +145,15 @@ function OrderRow({
                 </p>
                 <p className="text-muted-foreground">{shippingAddress.country}</p>
                 <p className="mt-2 text-xs text-muted-foreground">
+                  Livraison :{" "}
+                  {shippingAddress.deliveryMethod
+                    ? getDeliveryMethodLabel(shippingAddress.deliveryMethod)
+                    : "Non precisee"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Frais de livraison : {shipping.toLocaleString("fr-DZ")} DZD
+                </p>
+                <p className="mt-2 text-xs text-muted-foreground">
                   Paiement : {paymentMethod}
                 </p>
                 <div className="mt-3">
@@ -203,6 +217,7 @@ export default function AdminOrdersPage() {
                   customerEmail={order.customerEmail}
                   createdAt={order.createdAt}
                   total={order.total}
+                  shipping={order.shipping}
                   status={order.status}
                   items={order.items}
                   shippingAddress={order.shippingAddress}

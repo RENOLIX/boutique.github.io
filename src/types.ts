@@ -53,6 +53,8 @@ export interface ShippingAddress {
   city: string;
   postalCode: string;
   country: string;
+  wilayaCode?: string;
+  deliveryMethod?: "domicile" | "bureau";
 }
 
 export interface OrderItem {
