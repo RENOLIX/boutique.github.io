@@ -5,44 +5,46 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
-import { seedProducts } from "../data/seed";
+import { seedProducts } from "@/data/seed";
 import type {
   CartItem,
-  CartViewItem,
-  CustomerDetails,
   Order,
+  OrderDraft,
   OrderStatus,
   Product,
   ProductDraft,
-} from "../types";
+} from "@/types";
 
-const PRODUCTS_KEY = "maison-velours-products-v1";
-const ORDERS_KEY = "maison-velours-orders-v1";
-const CART_KEY = "maison-velours-cart-v1";
+const PRODUCTS_KEY = "maison-products-v2";
+const ORDERS_KEY = "maison-orders-v2";
+const CART_KEY = "maison-cart-v2";
 
-interface ShopContextValue {
+interface StoreContextValue {
   products: Product[];
-  categories: string[];
+  activeProducts: Product[];
   orders: Order[];
-  cartItems: CartViewItem[];
+  items: CartItem[];
+  totalPrice: number;
   cartCount: number;
-  cartSubtotal: number;
-  shippingFee: number;
-  cartTotal: number;
-  unitsSold: number;
-  revenue: number;
-  addToCart: (product: Product, size: string, color: string) => void;
-  updateCartItemQuantity: (lineId: string, quantity: number) => void;
-  removeFromCart: (lineId: string) => void;
-  clearCart: () => void;
-  placeOrder: (customer: CustomerDetails) => Order | null;
   createProduct: (draft: ProductDraft) => Product;
-  deleteProduct: (productId: string) => void;
-  updateOrderStatus: (orderId: string, status: OrderStatus) => void;
+  updateProduct: (id: string, draft: ProductDraft) => Product | null;
+  removeProduct: (id: string) => void;
+  getProductById: (id: string) => Product | undefined;
+  createOrder: (draft: OrderDraft) => Order;
+  updateOrderStatus: (id: string, status: OrderStatus) => void;
+  addItem: (item: CartItem) => void;
+  removeItem: (productId: string, size: string, color: string) => void;
+  updateQuantity: (
+    productId: string,
+    size: string,
+    color: string,
+    quantity: number,
+  ) => void;
+  clearCart: () => void;
   resetCatalog: () => void;
 }
 
-const ShopContext = createContext<ShopContextValue | null>(null);
+const StoreContext = createContext<StoreContextValue | null>(null);
 
 function readStorage<T>(key: string, fallback: () => T): T {
   if (typeof window === "undefined") {
@@ -80,165 +82,176 @@ function slugify(value: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-function createId(prefix: string) {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+function generateProductId(name: string) {
+  return `${slugify(name)}-${Date.now().toString().slice(-4)}`;
 }
 
-export function ShopProvider({ children }: PropsWithChildren) {
-  const [products, setProducts] = usePersistentState<Product[]>(
-    PRODUCTS_KEY,
-    () => seedProducts,
-  );
+function generateOrderNumber(orderCount: number) {
+  return `MSN-${new Date().getFullYear()}-${String(orderCount + 1).padStart(4, "0")}`;
+}
+
+export function StoreProvider({ children }: PropsWithChildren) {
+  const [products, setProducts] = usePersistentState<Product[]>(PRODUCTS_KEY, () => seedProducts);
   const [orders, setOrders] = usePersistentState<Order[]>(ORDERS_KEY, () => []);
-  const [cart, setCart] = usePersistentState<CartItem[]>(CART_KEY, () => []);
+  const [items, setItems] = usePersistentState<CartItem[]>(CART_KEY, () => []);
 
   useEffect(() => {
-    const activeIds = new Set(products.map((product) => product.id));
+    const validIds = new Set(products.map((product) => product.id));
 
-    setCart((currentCart) => {
-      const nextCart = currentCart.filter((item) => activeIds.has(item.productId));
-      return nextCart.length === currentCart.length ? currentCart : nextCart;
+    setItems((currentItems) => {
+      const nextItems = currentItems.filter((item) => validIds.has(item.productId));
+      return nextItems.length === currentItems.length ? currentItems : nextItems;
     });
-  }, [products, setCart]);
+  }, [products, setItems]);
 
-  const cartItems = cart.flatMap((item) => {
-    const product = products.find((entry) => entry.id === item.productId);
-    if (!product) {
-      return [];
-    }
-
-    return [
-      {
-        ...item,
-        product,
-        lineTotal: product.price * item.quantity,
-      },
-    ];
-  });
-
-  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
-  const cartSubtotal = cartItems.reduce((total, item) => total + item.lineTotal, 0);
-  const shippingFee = cartSubtotal === 0 ? 0 : cartSubtotal >= 200 ? 0 : 19;
-  const cartTotal = cartSubtotal + shippingFee;
-  const categories = ["Tout", ...new Set(products.map((product) => product.category))];
-  const unitsSold = orders.reduce(
-    (total, order) =>
-      total + order.items.reduce((itemsTotal, item) => itemsTotal + item.quantity, 0),
-    0,
-  );
-  const revenue = orders.reduce((total, order) => total + order.total, 0);
-
-  const addToCart = (product: Product, size: string, color: string) => {
-    setCart((currentCart) => {
-      const existingLine = currentCart.find(
-        (item) =>
-          item.productId === product.id &&
-          item.size === size &&
-          item.color === color,
-      );
-
-      if (existingLine) {
-        return currentCart.map((item) =>
-          item.id === existingLine.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item,
-        );
-      }
-
-      return [
-        ...currentCart,
-        {
-          id: createId("line"),
-          productId: product.id,
-          quantity: 1,
-          size,
-          color,
-        },
-      ];
-    });
-  };
-
-  const updateCartItemQuantity = (lineId: string, quantity: number) => {
-    setCart((currentCart) => {
-      if (quantity <= 0) {
-        return currentCart.filter((item) => item.id !== lineId);
-      }
-
-      return currentCart.map((item) =>
-        item.id === lineId ? { ...item, quantity } : item,
-      );
-    });
-  };
-
-  const removeFromCart = (lineId: string) => {
-    setCart((currentCart) => currentCart.filter((item) => item.id !== lineId));
-  };
-
-  const clearCart = () => {
-    setCart([]);
-  };
-
-  const placeOrder = (customer: CustomerDetails) => {
-    if (cartItems.length === 0) {
-      return null;
-    }
-
-    const newOrder: Order = {
-      id: `CMD-${Date.now().toString().slice(-6)}`,
-      createdAt: new Date().toISOString(),
-      customer,
-      items: cartItems.map((item) => ({
-        id: item.id,
-        productId: item.productId,
-        name: item.product.name,
-        image: item.product.image,
-        price: item.product.price,
-        quantity: item.quantity,
-        size: item.size,
-        color: item.color,
-        lineTotal: item.lineTotal,
-      })),
-      subtotal: cartSubtotal,
-      shipping: shippingFee,
-      total: cartTotal,
-      status: "Nouvelle",
-    };
-
-    setOrders((currentOrders) => [newOrder, ...currentOrders]);
-    setCart([]);
-    return newOrder;
-  };
+  const activeProducts = products.filter((product) => product.active);
+  const totalPrice = items.reduce((total, item) => total + item.price * item.quantity, 0);
+  const cartCount = items.reduce((total, item) => total + item.quantity, 0);
 
   const createProduct = (draft: ProductDraft) => {
     const product: Product = {
       ...draft,
-      id: `${slugify(draft.name)}-${Date.now().toString().slice(-5)}`,
-      compareAtPrice:
-        draft.compareAtPrice && draft.compareAtPrice > draft.price
-          ? draft.compareAtPrice
-          : null,
-      gallery:
-        draft.gallery.length > 0
-          ? draft.gallery
-          : [draft.image],
+      id: generateProductId(draft.name),
+      comparePrice:
+        draft.comparePrice && draft.comparePrice > draft.price
+          ? draft.comparePrice
+          : undefined,
     };
 
     setProducts((currentProducts) => [product, ...currentProducts]);
     return product;
   };
 
-  const deleteProduct = (productId: string) => {
+  const updateProduct = (id: string, draft: ProductDraft) => {
+    const existing = products.find((product) => product.id === id);
+    if (!existing) {
+      return null;
+    }
+
+    const nextProduct: Product = {
+      ...existing,
+      ...draft,
+      comparePrice:
+        draft.comparePrice && draft.comparePrice > draft.price
+          ? draft.comparePrice
+          : undefined,
+    };
+
     setProducts((currentProducts) =>
-      currentProducts.filter((product) => product.id !== productId),
+      currentProducts.map((product) => (product.id === id ? nextProduct : product)),
+    );
+
+    setItems((currentItems) =>
+      currentItems.map((item) =>
+        item.productId === id
+          ? {
+              ...item,
+              productName: nextProduct.name,
+              price: nextProduct.price,
+              image: nextProduct.images[0] ?? "",
+            }
+          : item,
+      ),
+    );
+
+    return nextProduct;
+  };
+
+  const removeProduct = (id: string) => {
+    setProducts((currentProducts) => currentProducts.filter((product) => product.id !== id));
+  };
+
+  const getProductById = (id: string) => {
+    return products.find((product) => product.id === id);
+  };
+
+  const createOrder = (draft: OrderDraft) => {
+    const order: Order = {
+      id: `order-${Date.now()}`,
+      orderNumber: generateOrderNumber(orders.length),
+      customerName: draft.customerName,
+      customerEmail: draft.customerEmail,
+      customerPhone: draft.customerPhone,
+      items: draft.items,
+      subtotal: draft.subtotal,
+      shipping: draft.shipping,
+      total: draft.total,
+      status: "pending",
+      shippingAddress: draft.shippingAddress,
+      paymentMethod: draft.paymentMethod,
+      createdAt: new Date().toISOString(),
+    };
+
+    setOrders((currentOrders) => [order, ...currentOrders]);
+    return order;
+  };
+
+  const updateOrderStatus = (id: string, status: OrderStatus) => {
+    setOrders((currentOrders) =>
+      currentOrders.map((order) => (order.id === id ? { ...order, status } : order)),
     );
   };
 
-  const updateOrderStatus = (orderId: string, status: OrderStatus) => {
-    setOrders((currentOrders) =>
-      currentOrders.map((order) =>
-        order.id === orderId ? { ...order, status } : order,
+  const addItem = (nextItem: CartItem) => {
+    setItems((currentItems) => {
+      const existing = currentItems.find(
+        (item) =>
+          item.productId === nextItem.productId &&
+          item.size === nextItem.size &&
+          item.color === nextItem.color,
+      );
+
+      if (existing) {
+        return currentItems.map((item) =>
+          item.productId === nextItem.productId &&
+          item.size === nextItem.size &&
+          item.color === nextItem.color
+            ? { ...item, quantity: item.quantity + nextItem.quantity }
+            : item,
+        );
+      }
+
+      return [...currentItems, nextItem];
+    });
+  };
+
+  const removeItem = (productId: string, size: string, color: string) => {
+    setItems((currentItems) =>
+      currentItems.filter(
+        (item) =>
+          !(
+            item.productId === productId &&
+            item.size === size &&
+            item.color === color
+          ),
       ),
     );
+  };
+
+  const updateQuantity = (
+    productId: string,
+    size: string,
+    color: string,
+    quantity: number,
+  ) => {
+    if (quantity <= 0) {
+      removeItem(productId, size, color);
+      return;
+    }
+
+    setItems((currentItems) =>
+      currentItems.map((item) =>
+        item.productId === productId &&
+        item.size === size &&
+        item.color === color
+          ? { ...item, quantity }
+          : item,
+      ),
+    );
+  };
+
+  const clearCart = () => {
+    setItems([]);
   };
 
   const resetCatalog = () => {
@@ -246,39 +259,37 @@ export function ShopProvider({ children }: PropsWithChildren) {
   };
 
   return (
-    <ShopContext.Provider
+    <StoreContext.Provider
       value={{
         products,
-        categories,
+        activeProducts,
         orders,
-        cartItems,
+        items,
+        totalPrice,
         cartCount,
-        cartSubtotal,
-        shippingFee,
-        cartTotal,
-        unitsSold,
-        revenue,
-        addToCart,
-        updateCartItemQuantity,
-        removeFromCart,
-        clearCart,
-        placeOrder,
         createProduct,
-        deleteProduct,
+        updateProduct,
+        removeProduct,
+        getProductById,
+        createOrder,
         updateOrderStatus,
+        addItem,
+        removeItem,
+        updateQuantity,
+        clearCart,
         resetCatalog,
       }}
     >
       {children}
-    </ShopContext.Provider>
+    </StoreContext.Provider>
   );
 }
 
-export function useShop() {
-  const context = useContext(ShopContext);
+export function useStore() {
+  const context = useContext(StoreContext);
 
   if (!context) {
-    throw new Error("useShop must be used inside ShopProvider");
+    throw new Error("useStore must be used inside StoreProvider");
   }
 
   return context;
