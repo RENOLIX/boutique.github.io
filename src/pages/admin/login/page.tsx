@@ -31,7 +31,8 @@ export default function AdminLoginPage() {
           toast.error(error);
           return;
         }
-        toast.success("Connexion réussie");
+
+        toast.success("Connexion reussie");
         navigate("/admin/products", { replace: true });
         return;
       }
@@ -43,9 +44,9 @@ export default function AdminLoginPage() {
       }
 
       if (needsEmailConfirmation) {
-        toast.success("Compte créé. Vérifie ton email pour confirmer l'accès admin.");
+        toast.success("Compte cree. Verifie ton email pour confirmer l'acces admin.");
       } else {
-        toast.success("Compte admin créé et connecté.");
+        toast.success("Compte admin cree et connecte.");
         navigate("/admin/products", { replace: true });
       }
     } finally {
@@ -62,11 +63,11 @@ export default function AdminLoginPage() {
           </div>
           <h1 className="font-serif text-3xl font-bold mb-2">Administration</h1>
           <p className="text-sm text-muted-foreground">
-            Connexion admin par email et mot de passe.
+            Connecte-toi avec ton email et ton mot de passe admin.
           </p>
           {!hasSupabaseConfig ? (
             <p className="text-xs text-red-600 mt-3">
-              Supabase n'est pas encore configuré dans l'application.
+              Supabase n'est pas encore configure dans l'application.
             </p>
           ) : null}
         </div>
@@ -92,7 +93,7 @@ export default function AdminLoginPage() {
                 : "flex-1 border border-border py-2 text-xs uppercase tracking-widest"
             }
           >
-            Créer admin
+            Creer admin
           </button>
         </div>
 
@@ -116,7 +117,7 @@ export default function AdminLoginPage() {
               onChange={(event) => setPassword(event.target.value)}
               required
               minLength={6}
-              placeholder="••••••••"
+              placeholder="********"
             />
           </div>
 
@@ -125,13 +126,14 @@ export default function AdminLoginPage() {
               ? "Patiente..."
               : mode === "login"
                 ? "Se connecter"
-                : "Créer le compte admin"}
+                : "Creer le compte admin"}
           </Button>
         </form>
 
         <p className="text-xs text-muted-foreground mt-6 leading-relaxed">
-          Le premier compte créé devient admin automatiquement si la base Supabase
-          a bien reçu le schéma prévu.
+          Si c'est le premier acces, clique sur "Creer admin" et choisis toi-meme
+          l'email et le mot de passe du compte. Le premier compte cree devient
+          admin automatiquement une fois les tables Supabase en place.
         </p>
       </div>
     </div>
