@@ -9,6 +9,7 @@ import Footer from "@/components/shop/Footer";
 import ProductCard from "@/components/shop/ProductCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useShop } from "@/hooks/use-shop";
+import { claimInitialHomeIntro } from "@/lib/initial-route";
 
 const HERO_IMG =
   "https://images.unsplash.com/photo-1775997167884-077821f7e3ea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1280";
@@ -53,10 +54,11 @@ export default function Index() {
   const { activeProducts } = useShop();
   const [email, setEmail] = useState("");
   const featured = activeProducts.filter((product) => product.featured).slice(0, 4);
+  const [shouldPlayDoorIntro] = useState(() => claimInitialHomeIntro());
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <DoorIntro />
+      <DoorIntro enabled={shouldPlayDoorIntro} />
       <Header />
 
       <section className="relative h-[82vh] min-h-[620px] overflow-hidden">

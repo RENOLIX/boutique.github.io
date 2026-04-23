@@ -1,28 +1,32 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 
-export default function DoorIntro() {
-  const [visible, setVisible] = useState(true);
+interface DoorIntroProps {
+  enabled?: boolean;
+}
+
+export default function DoorIntro({ enabled = true }: DoorIntroProps) {
+  const [visible, setVisible] = useState(enabled);
   const [opening, setOpening] = useState(false);
 
   useEffect(() => {
-    const seen = window.sessionStorage.getItem("maison-door-intro-seen");
-    if (seen === "true") {
+    if (!enabled) {
       setVisible(false);
+      setOpening(false);
       return;
     }
 
+    setVisible(true);
+    setOpening(false);
+
     const t1 = window.setTimeout(() => setOpening(true), 800);
-    const t2 = window.setTimeout(() => {
-      setVisible(false);
-      window.sessionStorage.setItem("maison-door-intro-seen", "true");
-    }, 2400);
+    const t2 = window.setTimeout(() => setVisible(false), 2400);
 
     return () => {
       window.clearTimeout(t1);
       window.clearTimeout(t2);
     };
-  }, []);
+  }, [enabled]);
 
   if (!visible) {
     return null;

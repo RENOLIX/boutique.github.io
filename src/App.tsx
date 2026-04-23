@@ -1,5 +1,6 @@
 import { Toaster } from "sonner";
 import { Navigate, Route, Routes } from "react-router-dom";
+import ScrollToTop from "@/components/app/ScrollToTop";
 import { AuthProvider } from "@/components/providers/auth";
 import { StoreProvider } from "@/lib/shop-store";
 import AdminLayout from "@/pages/admin/layout";
@@ -21,6 +22,7 @@ export default function App() {
   return (
     <AuthProvider>
       <StoreProvider>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<AboutPage />} />
