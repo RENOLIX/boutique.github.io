@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useShop } from "@/hooks/use-shop";
 import type { Order, OrderStatus } from "@/types";
 import { getDeliveryMethodLabel } from "@/lib/shipping";
+import { formatProductSelections } from "@/lib/product-options";
 import { cn } from "@/lib/utils";
 
 const STATUSES: { value: OrderStatus; label: string; color: string }[] = [
@@ -45,6 +46,7 @@ function buildPrintableOrderHtml(order: Order) {
         <tr>
           <td>${escapeHtml(item.productName)}</td>
           <td>${escapeHtml(item.size)}</td>
+          <td>${escapeHtml(item.shoeSize ?? "-")}</td>
           <td>${escapeHtml(item.color)}</td>
           <td>${item.quantity}</td>
           <td>${formatPrice(item.price)}</td>
@@ -115,6 +117,7 @@ function buildPrintableOrderHtml(order: Order) {
           <tr>
             <th>Produit</th>
             <th>Taille</th>
+            <th>Pointure</th>
             <th>Couleur</th>
             <th>Qte</th>
             <th>Prix</th>
@@ -220,7 +223,7 @@ function OrderDetails({ order }: { order: Order }) {
               <div className="min-w-0">
                 <p className="truncate">{item.productName}</p>
                 <p className="text-xs text-muted-foreground">
-                  {item.color} / {item.size} x{item.quantity}
+                  {formatProductSelections(item)} x{item.quantity}
                 </p>
               </div>
               <span className="font-medium shrink-0">

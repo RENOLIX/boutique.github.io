@@ -36,11 +36,17 @@ interface StoreContextValue {
   createOrder: (draft: OrderDraft) => Promise<Order>;
   updateOrderStatus: (id: string, status: OrderStatus) => Promise<void>;
   addItem: (item: CartItem) => void;
-  removeItem: (productId: string, size: string, color: string) => void;
+  removeItem: (
+    productId: string,
+    size: string,
+    color: string,
+    shoeSize?: string,
+  ) => void;
   updateQuantity: (
     productId: string,
     size: string,
     color: string,
+    shoeSize: string | undefined,
     quantity: number,
   ) => void;
   clearCart: () => void;
@@ -113,6 +119,7 @@ function productToRow(product: Product) {
     category: product.category,
     images: product.images,
     sizes: product.sizes,
+    shoe_sizes: product.shoeSizes,
     colors: product.colors,
     stock: product.stock,
     featured: product.featured,
@@ -130,6 +137,7 @@ function rowToProduct(row: Record<string, unknown>): Product {
     category: String(row.category ?? "femme") as Product["category"],
     images: Array.isArray(row.images) ? row.images.map(String) : [],
     sizes: Array.isArray(row.sizes) ? row.sizes.map(String) : [],
+    shoeSizes: Array.isArray(row.shoe_sizes) ? row.shoe_sizes.map(String) : [],
     colors: Array.isArray(row.colors) ? row.colors.map(String) : [],
     stock: Number(row.stock ?? 0),
     featured: Boolean(row.featured),
@@ -487,14 +495,16 @@ export function StoreProvider({ children }: PropsWithChildren) {
         (item) =>
           item.productId === nextItem.productId &&
           item.size === nextItem.size &&
-          item.color === nextItem.color,
+          item.color === nextItem.color &&
+          (item.shoeSize ?? "") === (nextItem.shoeSize ?? ""),
       );
 
       if (existing) {
         return currentItems.map((item) =>
           item.productId === nextItem.productId &&
           item.size === nextItem.size &&
-          item.color === nextItem.color
+          item.color === nextItem.color &&
+          (item.shoeSize ?? "") === (nextItem.shoeSize ?? "")
             ? { ...item, quantity: item.quantity + nextItem.quantity }
             : item,
         );
@@ -504,14 +514,20 @@ export function StoreProvider({ children }: PropsWithChildren) {
     });
   };
 
-  const removeItem = (productId: string, size: string, color: string) => {
+  const removeItem = (
+    productId: string,
+    size: string,
+    color: string,
+    shoeSize?: string,
+  ) => {
     setItems((currentItems) =>
       currentItems.filter(
         (item) =>
           !(
             item.productId === productId &&
             item.size === size &&
-            item.color === color
+            item.color === color &&
+            (item.shoeSize ?? "") === (shoeSize ?? "")
           ),
       ),
     );
@@ -521,10 +537,11 @@ export function StoreProvider({ children }: PropsWithChildren) {
     productId: string,
     size: string,
     color: string,
+    shoeSize: string | undefined,
     quantity: number,
   ) => {
     if (quantity <= 0) {
-      removeItem(productId, size, color);
+      removeItem(productId, size, color, shoeSize);
       return;
     }
 
@@ -532,7 +549,8 @@ export function StoreProvider({ children }: PropsWithChildren) {
       currentItems.map((item) =>
         item.productId === productId &&
         item.size === size &&
-        item.color === color
+        item.color === color &&
+        (item.shoeSize ?? "") === (shoeSize ?? "")
           ? { ...item, quantity }
           : item,
       ),

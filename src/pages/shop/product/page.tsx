@@ -17,6 +17,7 @@ export default function ProductPage() {
   const product = id ? getProductById(id) : undefined;
 
   const [selectedSize, setSelectedSize] = useState("");
+  const [selectedShoeSize, setSelectedShoeSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [activeImg, setActiveImg] = useState(0);
   const [added, setAdded] = useState(false);
@@ -27,6 +28,7 @@ export default function ProductPage() {
     }
 
     setSelectedSize(product.sizes[0] ?? "");
+    setSelectedShoeSize(product.shoeSizes[0] ?? "");
     setSelectedColor(product.colors[0] ?? "");
     setActiveImg(0);
   }, [product]);
@@ -48,6 +50,12 @@ export default function ProductPage() {
       toast.error("Veuillez choisir une taille");
       return;
     }
+
+    if (!selectedShoeSize && product.shoeSizes.length > 0) {
+      toast.error("Veuillez choisir une pointure");
+      return;
+    }
+
     if (!selectedColor && product.colors.length > 0) {
       toast.error("Veuillez choisir une couleur");
       return;
@@ -59,12 +67,13 @@ export default function ProductPage() {
       price: product.price,
       image: product.images[0] ?? "",
       size: selectedSize || "Unique",
+      shoeSize: selectedShoeSize || undefined,
       color: selectedColor || "Unique",
       quantity: 1,
     });
 
     setAdded(true);
-    toast.success(`${product.name} ajouté au panier`);
+    toast.success(`${product.name} ajoute au panier`);
     window.setTimeout(() => setAdded(false), 1800);
   };
 
@@ -154,7 +163,7 @@ export default function ProductPage() {
             ) : null}
 
             {product.sizes.length > 0 ? (
-              <div className="mb-8">
+              <div className="mb-6">
                 <p className="text-xs font-medium tracking-widest uppercase mb-3">Taille</p>
                 <div className="flex flex-wrap gap-2">
                   {product.sizes.map((size) => (
@@ -176,10 +185,33 @@ export default function ProductPage() {
               </div>
             ) : null}
 
+            {product.shoeSizes.length > 0 ? (
+              <div className="mb-8">
+                <p className="text-xs font-medium tracking-widest uppercase mb-3">Pointure</p>
+                <div className="flex flex-wrap gap-2">
+                  {product.shoeSizes.map((shoeSize) => (
+                    <button
+                      key={shoeSize}
+                      type="button"
+                      onClick={() => setSelectedShoeSize(shoeSize)}
+                      className={cn(
+                        "min-w-12 h-12 px-3 text-sm border transition-colors",
+                        selectedShoeSize === shoeSize
+                          ? "border-foreground bg-foreground text-background"
+                          : "border-border hover:border-foreground",
+                      )}
+                    >
+                      {shoeSize}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
             <Button size="lg" className="w-full" onClick={handleAddToCart}>
               {added ? (
                 <>
-                  <Check className="h-4 w-4 mr-2" /> Ajouté !
+                  <Check className="h-4 w-4 mr-2" /> Ajoute !
                 </>
               ) : (
                 <>
@@ -189,9 +221,9 @@ export default function ProductPage() {
             </Button>
 
             <div className="mt-6 pt-6 border-t border-border space-y-2 text-xs text-muted-foreground">
-              <p>Livraison locale rapide à Alger</p>
-              <p>Paiement à la livraison</p>
-              <p>Stock disponible : {product.stock} unité(s)</p>
+              <p>Livraison locale rapide a Alger</p>
+              <p>Paiement a la livraison</p>
+              <p>Stock disponible : {product.stock} unite(s)</p>
             </div>
           </div>
         </div>

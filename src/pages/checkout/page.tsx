@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCart } from "@/hooks/use-cart";
 import { useShop } from "@/hooks/use-shop";
+import { formatProductSelections } from "@/lib/product-options";
 import {
   WILAYA_SHIPPING_RATES,
   getDeliveryMethodLabel,
@@ -93,6 +94,7 @@ export default function CheckoutPage() {
           quantity: item.quantity,
           price: item.price,
           size: item.size,
+          shoeSize: item.shoeSize,
           color: item.color,
         })),
         subtotal: totalPrice,
@@ -300,7 +302,10 @@ export default function CheckoutPage() {
             </h2>
             <div className="space-y-4 mb-6">
               {items.map((item) => (
-                <div key={`${item.productId}-${item.size}-${item.color}`} className="flex gap-4">
+                <div
+                  key={`${item.productId}-${item.size}-${item.color}-${item.shoeSize ?? ""}`}
+                  className="flex gap-4"
+                >
                   <div className="w-16 h-20 bg-muted shrink-0 overflow-hidden">
                     {item.image ? (
                       <img
@@ -313,7 +318,7 @@ export default function CheckoutPage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{item.productName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {item.color} / {item.size}
+                      {formatProductSelections(item)}
                     </p>
                     <p className="text-xs text-muted-foreground">Qte : {item.quantity}</p>
                   </div>

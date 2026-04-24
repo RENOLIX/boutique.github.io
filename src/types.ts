@@ -16,6 +16,7 @@ export interface Product {
   category: ProductCategory;
   images: string[];
   sizes: string[];
+  shoeSizes: string[];
   colors: string[];
   stock: number;
   featured: boolean;
@@ -30,6 +31,7 @@ export interface ProductDraft {
   category: ProductCategory;
   images: string[];
   sizes: string[];
+  shoeSizes: string[];
   colors: string[];
   stock: number;
   featured: boolean;
@@ -42,6 +44,7 @@ export interface CartItem {
   price: number;
   image: string;
   size: string;
+  shoeSize?: string;
   color: string;
   quantity: number;
 }
@@ -63,6 +66,7 @@ export interface OrderItem {
   quantity: number;
   price: number;
   size: string;
+  shoeSize?: string;
   color: string;
 }
 

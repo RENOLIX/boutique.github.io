@@ -9,6 +9,7 @@ create table if not exists public.products (
   category text not null check (category in ('nouveautes', 'femme', 'homme', 'accessoires')),
   images text[] not null default '{}',
   sizes text[] not null default '{}',
+  shoe_sizes text[] not null default '{}',
   colors text[] not null default '{}',
   stock integer not null default 0,
   featured boolean not null default false,
@@ -16,6 +17,9 @@ create table if not exists public.products (
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
+
+alter table public.products
+add column if not exists shoe_sizes text[] not null default '{}';
 
 create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),

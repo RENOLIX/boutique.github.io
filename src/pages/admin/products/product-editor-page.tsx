@@ -17,8 +17,9 @@ const EMPTY_FORM = {
   comparePrice: "",
   category: "femme" as ProductCategory,
   images: [] as string[],
-  sizes: "XS,S,M,L,XL",
-  colors: "Noir,Blanc",
+  sizes: "",
+  shoeSizes: "",
+  colors: "",
   stock: "10",
   featured: false,
   active: true,
@@ -85,10 +86,16 @@ export default function AdminProductEditorPage() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [enableSizes, setEnableSizes] = useState(false);
+  const [enableShoeSizes, setEnableShoeSizes] = useState(false);
+  const [enableColors, setEnableColors] = useState(false);
 
   useEffect(() => {
     if (isNew) {
       setForm(EMPTY_FORM);
+      setEnableSizes(false);
+      setEnableShoeSizes(false);
+      setEnableColors(false);
       return;
     }
 
@@ -104,11 +111,15 @@ export default function AdminProductEditorPage() {
       category: product.category,
       images: product.images,
       sizes: product.sizes.join(","),
+      shoeSizes: product.shoeSizes.join(","),
       colors: product.colors.join(","),
       stock: String(product.stock),
       featured: product.featured,
       active: product.active,
     });
+    setEnableSizes(product.sizes.length > 0);
+    setEnableShoeSizes(product.shoeSizes.length > 0);
+    setEnableColors(product.colors.length > 0);
   }, [isNew, product]);
 
   const handleChange = (
@@ -185,8 +196,9 @@ export default function AdminProductEditorPage() {
       comparePrice: form.comparePrice ? Number(form.comparePrice) : undefined,
       category: form.category,
       images: form.images.filter(Boolean),
-      sizes: parseCsv(form.sizes),
-      colors: parseCsv(form.colors),
+      sizes: enableSizes ? parseCsv(form.sizes) : [],
+      shoeSizes: enableShoeSizes ? parseCsv(form.shoeSizes) : [],
+      colors: enableColors ? parseCsv(form.colors) : [],
       stock: Number(form.stock),
       featured: form.featured,
       active: form.active,
@@ -359,14 +371,76 @@ export default function AdminProductEditorPage() {
           )}
         </div>
 
-        <div className="space-y-1">
-          <Label>Tailles</Label>
-          <Input name="sizes" value={form.sizes} onChange={handleChange} placeholder="XS,S,M,L" />
-        </div>
+        <div className="md:col-span-2 border border-border p-4 space-y-4">
+          <div>
+            <p className="font-medium text-sm">Options produit</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Active uniquement les champs utiles pour ce produit.
+            </p>
+          </div>
 
-        <div className="space-y-1">
-          <Label>Couleurs</Label>
-          <Input name="colors" value={form.colors} onChange={handleChange} placeholder="Noir,Blanc" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={enableSizes}
+                onChange={(event) => setEnableSizes(event.target.checked)}
+              />
+              Activer les tailles
+            </label>
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={enableShoeSizes}
+                onChange={(event) => setEnableShoeSizes(event.target.checked)}
+              />
+              Activer les pointures
+            </label>
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={enableColors}
+                onChange={(event) => setEnableColors(event.target.checked)}
+              />
+              Activer les couleurs
+            </label>
+          </div>
+
+          {enableSizes ? (
+            <div className="space-y-1">
+              <Label>Tailles</Label>
+              <Input
+                name="sizes"
+                value={form.sizes}
+                onChange={handleChange}
+                placeholder="XS,S,M,L,XL"
+              />
+            </div>
+          ) : null}
+
+          {enableShoeSizes ? (
+            <div className="space-y-1">
+              <Label>Pointures</Label>
+              <Input
+                name="shoeSizes"
+                value={form.shoeSizes}
+                onChange={handleChange}
+                placeholder="39,40,41,42,43"
+              />
+            </div>
+          ) : null}
+
+          {enableColors ? (
+            <div className="space-y-1">
+              <Label>Couleurs</Label>
+              <Input
+                name="colors"
+                value={form.colors}
+                onChange={handleChange}
+                placeholder="Noir,Blanc"
+              />
+            </div>
+          ) : null}
         </div>
 
         <div className="space-y-1">
