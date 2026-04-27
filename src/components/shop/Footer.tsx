@@ -30,10 +30,10 @@ export default function Footer() {
               <span className="font-brand text-[1.65rem] leading-none text-primary">
                 Mina
               </span>{" "}
-              Boutique propose des collections femme, homme et accessoires au
-              style propre, feminin et facile a porter. Livraison rapide,
-              paiement a la livraison et experience simple du panier jusqu'a la
-              reception.
+              Boutique propose une selection de robes et de pieces feminines au
+              style elegant, facile a porter et pense pour vos sorties comme
+              pour le quotidien. Livraison rapide, paiement a la livraison et
+              experience simple jusqu'a la reception.
             </p>
           </div>
 
@@ -59,10 +59,10 @@ export default function Footer() {
                 <MapPin className="h-4 w-4" /> Hydra, Alger
               </p>
               <p className="flex items-center gap-2">
-                <Phone className="h-4 w-4" /> +213 550 12 34 56
+                <Phone className="h-4 w-4" /> 0772379907
               </p>
               <p className="flex items-center gap-2">
-                <Mail className="h-4 w-4" /> contact@minaboutique.dz
+                <Mail className="h-4 w-4" /> djemaabdellah5@gmail.com
               </p>
               <p className="flex items-center gap-2">
                 <Truck className="h-4 w-4" /> Livraison 2 a 5 jours

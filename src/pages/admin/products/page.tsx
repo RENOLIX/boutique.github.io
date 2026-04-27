@@ -84,9 +84,6 @@ export default function AdminProductsPage() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="font-medium text-sm truncate">{product.name}</p>
-                        <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground mt-1">
-                          {product.category}
-                        </p>
                       </div>
                       <span
                         className={
@@ -152,9 +149,6 @@ export default function AdminProductsPage() {
                   <th className="text-left px-4 py-3 text-xs font-semibold tracking-widest uppercase">
                     Produit
                   </th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold tracking-widest uppercase hidden lg:table-cell">
-                    Categorie
-                  </th>
                   <th className="text-left px-4 py-3 text-xs font-semibold tracking-widest uppercase">
                     Prix
                   </th>
@@ -192,9 +186,6 @@ export default function AdminProductsPage() {
                           ) : null}
                         </div>
                       </div>
-                    </td>
-                    <td className="px-4 py-3 hidden lg:table-cell">
-                      <span className="text-xs tracking-wide uppercase">{product.category}</span>
                     </td>
                     <td className="px-4 py-3 font-semibold">
                       {product.price.toLocaleString("fr-DZ")} DZD

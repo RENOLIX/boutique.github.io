@@ -118,9 +118,6 @@ export default function ProductPage() {
           </div>
 
           <div className="py-4">
-            <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">
-              {product.category}
-            </p>
             <h1 className="font-serif text-3xl font-bold mb-3">{product.name}</h1>
             <div className="flex items-center gap-3 mb-6">
               <span className="text-2xl font-semibold">

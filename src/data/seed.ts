@@ -46,7 +46,7 @@ export const seedProducts: Product[] = [
       "Chemise homme en coton doux, finition nette et col structure. Un essentiel propre pour le quotidien comme pour les occasions.",
     price: 6900,
     comparePrice: 7900,
-    category: "homme",
+    category: "femme",
     images: [
       "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=900",
       "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=900",
@@ -84,7 +84,7 @@ export const seedProducts: Product[] = [
       "Polo minimal a texture douce, coupe droite et finitions propres. Une piece homme simple et elegante pour la saison.",
     price: 5400,
     comparePrice: 6200,
-    category: "homme",
+    category: "femme",
     images: [
       "https://images.unsplash.com/photo-1507679799987-c73779587ccf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=900",
       "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=900",
@@ -103,7 +103,7 @@ export const seedProducts: Product[] = [
       "Sac structure au format quotidien, pratique et elegant, avec fermeture zippee et anses renforcees.",
     price: 8300,
     comparePrice: 9500,
-    category: "accessoires",
+    category: "femme",
     images: [
       "https://images.unsplash.com/photo-1584917865442-de89df76afd3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=900",
       "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=900",
@@ -122,7 +122,7 @@ export const seedProducts: Product[] = [
       "Foulard imprime leger pour completer les tenues de tous les jours avec une touche raffinee.",
     price: 2900,
     comparePrice: 3500,
-    category: "accessoires",
+    category: "femme",
     images: [
       "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=900",
       "https://images.unsplash.com/photo-1581044777550-4cfa60707c03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=900",
@@ -141,7 +141,7 @@ export const seedProducts: Product[] = [
       "Piece de nouveaute en edition limitee, pensee pour la nouvelle collection de saison avec lignes sobres et coupe actuelle.",
     price: 9900,
     comparePrice: 11200,
-    category: "nouveautes",
+    category: "femme",
     images: [
       "https://images.unsplash.com/photo-1603798125914-7b5d27789248?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=900",
       "https://images.unsplash.com/photo-1607997637503-d4d8dee871e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=900",

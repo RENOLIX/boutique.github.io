@@ -10,27 +10,8 @@ import ProductCard from "@/components/shop/ProductCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useShop } from "@/hooks/use-shop";
 import { claimInitialHomeIntro } from "@/lib/initial-route";
-
-const HERO_IMG =
-  "https://images.unsplash.com/photo-1775997167884-077821f7e3ea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1280";
-
-const CATEGORIES = [
-  {
-    label: "Femme",
-    img: "https://images.unsplash.com/photo-1765229276796-c93c73cc3f3b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=700",
-    href: "/shop?category=femme",
-  },
-  {
-    label: "Homme",
-    img: "https://images.unsplash.com/photo-1559038217-3fb2db6186f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=700",
-    href: "/shop?category=homme",
-  },
-  {
-    label: "Accessoires",
-    img: "https://images.unsplash.com/photo-1708523842501-800cd1c7505e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=700",
-    href: "/shop?category=accessoires",
-  },
-];
+import heroDesktop from "@/assets/mina-hero-desktop.jpg";
+import heroMobile from "@/assets/mina-hero-mobile.jpg";
 
 const COMMITMENTS = [
   {
@@ -61,40 +42,45 @@ export default function Index() {
       <DoorIntro enabled={shouldPlayDoorIntro} />
       <Header />
 
-      <section className="relative h-[82vh] min-h-[620px] overflow-hidden">
-        <img
-          src={HERO_IMG}
-          alt="Collection Mina Boutique"
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black/35" />
-        <div className="absolute inset-0 mx-auto flex max-w-7xl items-center px-4 sm:px-6">
+      <section className="relative h-[88svh] min-h-[720px] overflow-hidden md:h-[82vh] md:min-h-[620px]">
+        <picture className="block h-full w-full">
+          <source media="(max-width: 767px)" srcSet={heroMobile} />
+          <img
+            src={heroDesktop}
+            alt="Collection Mina Boutique"
+            className="h-full w-full object-cover object-center md:object-center"
+            loading="eager"
+            fetchPriority="high"
+          />
+        </picture>
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,12,18,0.1)_0%,rgba(18,12,18,0.5)_100%)] md:bg-[linear-gradient(90deg,rgba(18,12,18,0.7)_0%,rgba(18,12,18,0.38)_42%,rgba(18,12,18,0.1)_100%)]" />
+        <div className="absolute inset-0 mx-auto flex max-w-7xl items-end px-4 pb-10 sm:px-6 md:items-center md:pb-0">
           <motion.div
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, ease: "easeOut" }}
-            className="max-w-2xl text-white"
+            className="max-w-xl text-white md:max-w-2xl"
           >
             <div className="mb-4 flex flex-wrap items-center gap-3 text-white/80">
-              <span className="font-brand text-4xl leading-none text-white">
+              <span className="font-brand text-3xl leading-none text-white md:text-4xl">
                 Mina
               </span>
-              <span className="text-xs uppercase tracking-[0.42em]">
+              <span className="text-[10px] uppercase tracking-[0.35em] md:text-xs md:tracking-[0.42em]">
                 Boutique a Alger
               </span>
             </div>
-            <h1 className="mb-6 font-serif text-5xl font-bold leading-none md:text-7xl">
+            <h1 className="mb-5 font-serif text-4xl font-bold leading-none sm:text-5xl md:mb-6 md:text-7xl">
               Des silhouettes sobres,
               <br />
               pensees pour durer.
             </h1>
-            <p className="mb-8 max-w-xl text-sm leading-relaxed text-white/80 md:text-base">
-              Decouvrez une selection femme, homme et accessoires avec livraison
-              locale et paiement a la livraison.
+            <p className="mb-7 max-w-lg text-sm leading-relaxed text-white/80 md:mb-8 md:max-w-xl md:text-base">
+              Decouvrez une selection de robes et de pieces feminines avec
+              livraison locale et paiement a la livraison.
             </p>
             <Link
               to="/shop"
-              className="inline-flex items-center gap-2 bg-white px-8 py-4 text-xs font-semibold uppercase tracking-widest text-foreground transition-colors hover:bg-white/90"
+              className="inline-flex items-center gap-2 bg-white px-7 py-3.5 text-[11px] font-semibold uppercase tracking-widest text-foreground transition-colors hover:bg-white/90 md:px-8 md:py-4 md:text-xs"
             >
               Decouvrir la boutique <ArrowRight className="h-4 w-4" />
             </Link>
@@ -108,46 +94,51 @@ export default function Index() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45 }}
           viewport={{ once: true }}
-          className="mb-12 text-center"
+          className="grid items-center gap-10 md:grid-cols-[0.9fr_1.1fr]"
         >
-          <p className="mb-2 text-xs uppercase tracking-[0.4em] text-muted-foreground">
-            Nos univers
-          </p>
-          <h2 className="font-serif text-3xl font-bold">Explorez la collection</h2>
-        </motion.div>
-
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {CATEGORIES.map((category, index) => (
-            <motion.div
-              key={category.label}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: index * 0.08 }}
-              viewport={{ once: true }}
+          <div className="order-2 space-y-5 md:order-1">
+            <div>
+              <p className="mb-2 text-xs uppercase tracking-[0.4em] text-muted-foreground">
+                La signature Mina
+              </p>
+              <h2 className="font-serif text-3xl font-bold md:text-4xl">
+                Une boutique pensee autour de la robe feminine
+              </h2>
+            </div>
+            <p className="max-w-xl text-sm leading-relaxed text-muted-foreground md:text-base">
+              Mina Boutique selectionne des coupes elegantes, des matieres
+              fluides et des details soignes pour accompagner vos sorties, vos
+              fetes et vos moments du quotidien avec une allure simple et
+              raffinee.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              {["Robes longues", "Modeles de soiree", "Nouvelles arrivees"].map((item) => (
+                <span
+                  key={item}
+                  className="border border-border bg-white/80 px-4 py-2 text-xs uppercase tracking-[0.22em] text-muted-foreground"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+            <Link
+              to="/shop"
+              className="inline-flex items-center gap-2 border border-foreground px-6 py-3 text-xs font-semibold uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
             >
-              <Link to={category.href} className="group block">
-                <div className="aspect-[5/6] overflow-hidden bg-muted">
-                  <img
-                    src={category.img}
-                    alt={category.label}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-                <div className="flex items-center justify-between pt-4">
-                  <div>
-                    <p className="font-serif text-2xl font-semibold">
-                      {category.label}
-                    </p>
-                    <p className="mt-1 text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                      Explorer
-                    </p>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-foreground" />
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
+              Voir la collection <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="order-1 md:order-2">
+            <div className="overflow-hidden bg-muted shadow-[0_28px_70px_-56px_rgba(95,37,59,0.55)]">
+              <img
+                src={heroMobile}
+                alt="Collection femme Mina Boutique"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </div>
+        </motion.div>
       </section>
 
       <section className="border-y border-border">

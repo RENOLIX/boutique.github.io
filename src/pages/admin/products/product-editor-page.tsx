@@ -11,13 +11,13 @@ import { useShop } from "@/hooks/use-shop";
 import type { ProductCategory } from "@/types";
 
 const MAX_IMAGES = 8;
+const DEFAULT_PRODUCT_CATEGORY: ProductCategory = "femme";
 
 const EMPTY_FORM = {
   name: "",
   description: "",
   price: "",
   comparePrice: "",
-  category: "femme" as ProductCategory,
   images: [] as string[],
   sizes: "",
   shoeSizes: "",
@@ -26,8 +26,6 @@ const EMPTY_FORM = {
   featured: false,
   active: true,
 };
-
-const CATEGORIES: ProductCategory[] = ["nouveautes", "femme", "homme", "accessoires"];
 
 function parseCsv(value: string) {
   return value
@@ -115,7 +113,6 @@ export default function AdminProductEditorPage() {
       description: product.description,
       price: String(product.price),
       comparePrice: product.comparePrice ? String(product.comparePrice) : "",
-      category: product.category,
       images: product.images,
       sizes: product.sizes.join(","),
       shoeSizes: product.shoeSizes.join(","),
@@ -201,7 +198,7 @@ export default function AdminProductEditorPage() {
       description: form.description.trim(),
       price: Number(form.price),
       comparePrice: form.comparePrice ? Number(form.comparePrice) : undefined,
-      category: form.category,
+      category: DEFAULT_PRODUCT_CATEGORY,
       images: form.images.filter(Boolean),
       sizes: enableSizes ? parseCsv(form.sizes) : [],
       shoeSizes: enableShoeSizes ? parseCsv(form.shoeSizes) : [],
@@ -289,22 +286,6 @@ export default function AdminProductEditorPage() {
             value={form.comparePrice}
             onChange={handleChange}
           />
-        </div>
-
-        <div className="space-y-1 rounded-[24px] border border-border bg-white/75 p-5 md:col-span-2">
-          <Label>Categorie</Label>
-          <select
-            name="category"
-            value={form.category}
-            onChange={handleChange}
-            className="w-full border border-input rounded-none px-3 py-2 text-sm bg-background"
-          >
-            {CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {category.charAt(0).toUpperCase() + category.slice(1)}
-              </option>
-            ))}
-          </select>
         </div>
 
         <div className="space-y-1 rounded-[24px] border border-border bg-white/75 p-5 md:col-span-2">

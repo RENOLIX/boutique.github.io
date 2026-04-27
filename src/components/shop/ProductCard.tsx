@@ -16,9 +16,6 @@ export default function ProductCard({ product }: { product: Product }) {
         />
       </div>
       <div className="pt-4">
-        <p className="text-[11px] uppercase tracking-[0.28em] text-muted-foreground mb-2">
-          {product.category === "nouveautes" ? "Nouveautés" : product.category}
-        </p>
         <h3 className="font-medium text-sm md:text-base leading-snug mb-2">
           {product.name}
         </h3>
