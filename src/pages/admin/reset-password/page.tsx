@@ -12,6 +12,7 @@ export default function AdminResetPasswordPage() {
   const navigate = useNavigate();
   const {
     session,
+    loading,
     isPasswordRecovery,
     updatePassword,
     clearPasswordRecovery,
@@ -20,6 +21,19 @@ export default function AdminResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="w-full max-w-md border border-border bg-white/95 p-8 text-center shadow-[0_18px_50px_-32px_rgba(219,97,149,0.45)]">
+          <BrandLogo className="mx-auto mb-5 h-14 w-[172px]" />
+          <p className="text-sm text-muted-foreground">
+            Verification du lien de reinitialisation...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!session && !isPasswordRecovery) {
     return <Navigate to="/admin/login" replace />;

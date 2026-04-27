@@ -4,21 +4,71 @@ import { HashRouter } from "react-router-dom";
 import App from "./App";
 import "./index.css";
 
-if (typeof window !== "undefined") {
-  const rawHash = window.location.hash;
-  const looksLikeSupabaseRecovery =
-    rawHash.startsWith("#access_token=") || rawHash.includes("&access_token=");
+const RECOVERY_STORAGE_KEY = "__mina_supabase_recovery_payload";
 
-  if (looksLikeSupabaseRecovery) {
-    window.sessionStorage.setItem("__mina_supabase_recovery_hash", rawHash.slice(1));
-    const params = new URLSearchParams(rawHash.slice(1));
+function getRecoveryPayloadFromLocation() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const rawHash = window.location.hash.startsWith("#")
+    ? window.location.hash.slice(1)
+    : window.location.hash;
+  const rawSearch = window.location.search.startsWith("?")
+    ? window.location.search.slice(1)
+    : window.location.search;
+
+  const hashPayload =
+    rawHash.startsWith("access_token=") ||
+    rawHash.includes("&access_token=") ||
+    rawHash.startsWith("type=") ||
+    rawHash.startsWith("error=")
+      ? rawHash
+      : null;
+  const routePayload = rawHash.startsWith("/admin/reset-password?")
+    ? rawHash.split("?")[1] ?? null
+    : null;
+  const candidates = [hashPayload, routePayload, rawSearch].filter(Boolean) as string[];
+
+  for (const candidate of candidates) {
+    const params = new URLSearchParams(candidate);
+    const hasRecoveryToken =
+      params.has("access_token") ||
+      params.has("refresh_token") ||
+      params.has("token_hash") ||
+      params.has("code");
+    const isRecovery =
+      params.get("type") === "recovery" ||
+      (hasRecoveryToken && candidate.toLowerCase().includes("recovery"));
+    const hasError = params.has("error") || params.has("error_code");
+
+    if (isRecovery || hasError) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
+if (typeof window !== "undefined") {
+  const recoveryPayload = getRecoveryPayloadFromLocation();
+
+  if (recoveryPayload) {
+    const params = new URLSearchParams(recoveryPayload);
     const nextHash =
-      params.get("type") === "recovery" ? "#/admin/reset-password" : "#/";
+      params.get("type") === "recovery" ||
+      params.has("access_token") ||
+      params.has("token_hash") ||
+      params.has("code")
+        ? "#/admin/reset-password"
+        : "#/admin/login";
+
+    window.sessionStorage.setItem(RECOVERY_STORAGE_KEY, recoveryPayload);
 
     window.history.replaceState(
       {},
       document.title,
-      `${window.location.pathname}${window.location.search}${nextHash}`,
+      `${window.location.pathname}${nextHash}`,
     );
   }
 }

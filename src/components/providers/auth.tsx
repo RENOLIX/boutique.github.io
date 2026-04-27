@@ -7,7 +7,7 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
-import type { Session, User } from "@supabase/supabase-js";
+import type { EmailOtpType, Session, User } from "@supabase/supabase-js";
 import {
   createSecondarySupabaseClient,
   getPasswordRecoveryRedirectUrl,
@@ -49,6 +49,7 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const RECOVERY_STORAGE_KEY = "__mina_supabase_recovery_payload";
 
 function rowToAdminUser(row: Record<string, unknown>): AdminUserRecord {
   return {
@@ -146,7 +147,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
       return false;
     }
 
-    return window.location.hash.includes("type=recovery");
+    return (
+      window.location.hash.includes("type=recovery") ||
+      window.location.search.includes("type=recovery") ||
+      Boolean(window.sessionStorage.getItem(RECOVERY_STORAGE_KEY))
+    );
   });
 
   const syncRole = useCallback(async (nextUser: User | null) => {
@@ -195,27 +200,44 @@ export function AuthProvider({ children }: PropsWithChildren) {
     const bootstrapSession = async () => {
       const pendingRecovery =
         typeof window !== "undefined"
-          ? window.sessionStorage.getItem("__mina_supabase_recovery_hash")
+          ? window.sessionStorage.getItem(RECOVERY_STORAGE_KEY)
           : null;
 
       if (pendingRecovery) {
         const params = new URLSearchParams(pendingRecovery);
         const accessToken = params.get("access_token");
         const refreshToken = params.get("refresh_token");
+        const tokenHash = params.get("token_hash");
+        const authCode = params.get("code");
         const type = params.get("type");
+        let recoveryReady = false;
 
-        if (accessToken && refreshToken) {
-          await client.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
+        try {
+          if (accessToken && refreshToken) {
+            const { error } = await client.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+            recoveryReady = !error;
+          } else if (authCode) {
+            const { error } = await client.auth.exchangeCodeForSession(authCode);
+            recoveryReady = !error;
+          } else if (tokenHash && type) {
+            const { error } = await client.auth.verifyOtp({
+              token_hash: tokenHash,
+              type: type as EmailOtpType,
+            });
+            recoveryReady = !error;
+          }
+        } catch {
+          // If the recovery token is invalid or expired, the login page remains the fallback.
         }
 
         if (type === "recovery" && mounted) {
-          setIsPasswordRecovery(true);
+          setIsPasswordRecovery(recoveryReady);
         }
 
-        window.sessionStorage.removeItem("__mina_supabase_recovery_hash");
+        window.sessionStorage.removeItem(RECOVERY_STORAGE_KEY);
       }
 
       const { data } = await client.auth.getSession();
