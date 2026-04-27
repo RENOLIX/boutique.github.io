@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import Header from "@/components/shop/Header";
 import Footer from "@/components/shop/Footer";
+import aboutHeroMarble from "@/assets/mina-about-marble-base.jpg";
+import aboutPlantLeft from "@/assets/mina-about-plant-left.jpg";
+import aboutPlantRight from "@/assets/mina-about-plant-right.jpg";
+import aboutStory from "@/assets/mina-about-story.jpg";
 
 const TEAM = [
   {
@@ -42,29 +46,70 @@ export default function AboutPage() {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
 
-      <section className="relative h-[55vh] overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1772570824145-e996a55204fb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080"
-          alt="A propos"
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 flex items-center justify-center bg-[#351f2a]/50 px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
-          >
-            <p className="mb-3 text-xs uppercase tracking-[0.4em] text-white/60">
-              Notre histoire
-            </p>
-            <h1 className="font-serif text-4xl font-bold text-white md:text-6xl">
-              A propos de{" "}
-              <span className="font-brand text-5xl font-normal md:text-7xl">
-                Mina
-              </span>{" "}
-              Boutique
-            </h1>
-          </motion.div>
+      <section className="relative isolate overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src={aboutHeroMarble}
+            alt=""
+            aria-hidden="true"
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(33,20,27,0.62)_0%,rgba(33,20,27,0.26)_28%,rgba(255,248,247,0.08)_52%,rgba(255,248,247,0.18)_100%)]" />
+          <div className="absolute inset-y-0 left-[10%] w-[8px] rounded-full bg-[#f3ddb1]/70 blur-[1px]" />
+          <div className="absolute inset-y-0 left-[28%] w-[8px] rounded-full bg-[#fff4da]/80 blur-[1px]" />
+          <div className="absolute inset-y-0 right-[8%] w-[8px] rounded-full bg-[#f6ddb6]/70 blur-[1px]" />
+          <img
+            src={aboutPlantLeft}
+            alt=""
+            aria-hidden="true"
+            className="absolute bottom-4 left-0 h-[30%] w-auto object-contain opacity-70 sm:left-2 sm:h-[34%] md:bottom-6 md:left-4 md:h-[48%] md:opacity-95 lg:left-10"
+            style={{
+              WebkitMaskImage:
+                "linear-gradient(180deg, transparent 0%, black 12%, black 88%, transparent 100%), linear-gradient(90deg, transparent 0%, black 18%, black 100%)",
+              maskImage:
+                "linear-gradient(180deg, transparent 0%, black 12%, black 88%, transparent 100%), linear-gradient(90deg, transparent 0%, black 18%, black 100%)",
+            }}
+          />
+          <img
+            src={aboutPlantRight}
+            alt=""
+            aria-hidden="true"
+            className="absolute bottom-4 right-0 h-[24%] w-auto object-contain opacity-72 sm:right-2 sm:h-[28%] md:bottom-5 md:right-3 md:h-[42%] md:opacity-95 lg:right-8"
+            style={{
+              WebkitMaskImage:
+                "linear-gradient(180deg, transparent 0%, black 16%, black 92%, transparent 100%), linear-gradient(90deg, black 0%, black 82%, transparent 100%)",
+              maskImage:
+                "linear-gradient(180deg, transparent 0%, black 16%, black 92%, transparent 100%), linear-gradient(90deg, black 0%, black 82%, transparent 100%)",
+            }}
+          />
+          <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/18 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#fff6f7]/32 to-transparent" />
+        </div>
+        <div className="relative flex min-h-[58vh] items-center px-4 py-20 sm:px-6 lg:min-h-[62vh]">
+          <div className="mx-auto w-full max-w-7xl">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+              className="max-w-3xl text-left"
+            >
+              <p className="mb-3 text-xs uppercase tracking-[0.4em] text-white/70">
+                Notre histoire
+              </p>
+              <h1 className="max-w-2xl font-serif text-4xl font-bold leading-none text-white md:text-6xl">
+                A propos de{" "}
+                <span className="font-brand text-5xl font-normal md:text-7xl">
+                  Mina
+                </span>{" "}
+                Boutique
+              </h1>
+              <p className="mt-6 max-w-xl text-sm leading-relaxed text-white/78 md:text-base">
+                Une adresse feminine a Alger, inspiree par les matieres douces,
+                les details soignes et une experience simple du choix jusqu&apos;a
+                la livraison.
+              </p>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -111,8 +156,8 @@ export default function AboutPage() {
             className="aspect-[4/5] overflow-hidden"
           >
             <img
-              src="https://images.unsplash.com/photo-1603798125914-7b5d27789248?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=700"
-              alt="Atelier Mina Boutique"
+              src={aboutStory}
+              alt="Univers Mina Boutique"
               className="h-full w-full object-cover"
             />
           </motion.div>

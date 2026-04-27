@@ -12,6 +12,7 @@ import { useShop } from "@/hooks/use-shop";
 import { claimInitialHomeIntro } from "@/lib/initial-route";
 import heroDesktop from "@/assets/mina-hero-desktop.jpg";
 import heroMobile from "@/assets/mina-hero-mobile.jpg";
+import signatureShowcase from "@/assets/mina-signature-showcase.jpg";
 
 const COMMITMENTS = [
   {
@@ -132,8 +133,8 @@ export default function Index() {
           <div className="order-1 md:order-2">
             <div className="overflow-hidden bg-muted shadow-[0_28px_70px_-56px_rgba(95,37,59,0.55)]">
               <img
-                src={heroMobile}
-                alt="Collection femme Mina Boutique"
+                src={signatureShowcase}
+                alt="Selection signature Mina Boutique"
                 className="h-full w-full object-cover"
               />
             </div>
