@@ -2,7 +2,9 @@ import { createClient } from "@supabase/supabase-js";
 
 const rawSupabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabasePublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const configuredSiteUrl = import.meta.env.VITE_PUBLIC_SITE_URL;
 const supabaseUrl = rawSupabaseUrl?.replace(/\/rest\/v1\/?$/, "");
+const defaultProductionSiteUrl = "https://renolix.github.io/boutique.github.io/";
 
 export const hasSupabaseConfig = Boolean(
   supabaseUrl && supabasePublishableKey,
@@ -37,5 +39,15 @@ export function getPasswordRecoveryRedirectUrl() {
     return undefined;
   }
 
-  return `${window.location.origin}${window.location.pathname}`;
+  if (configuredSiteUrl) {
+    return configuredSiteUrl;
+  }
+
+  const { protocol, hostname, origin, pathname } = window.location;
+
+  if (protocol === "file:" || hostname === "localhost" || hostname === "127.0.0.1") {
+    return defaultProductionSiteUrl;
+  }
+
+  return `${origin}${pathname}`;
 }
