@@ -110,6 +110,34 @@ begin
 end;
 $$;
 
+create or replace function public.is_admin_user(target_user_id uuid default auth.uid())
+returns boolean
+language sql
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.admin_users
+    where user_id = target_user_id
+      and role = 'admin'
+  );
+$$;
+
+create or replace function public.is_backoffice_user(target_user_id uuid default auth.uid())
+returns boolean
+language sql
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.admin_users
+    where user_id = target_user_id
+      and role in ('admin', 'employee')
+  );
+$$;
+
 drop trigger if exists on_auth_user_created_bootstrap_admin on auth.users;
 create trigger on_auth_user_created_bootstrap_admin
 after insert on auth.users
@@ -127,9 +155,7 @@ for select
 to anon, authenticated
 using (
   active = true
-  or exists (
-    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
-  )
+  or public.is_admin_user()
 );
 
 drop policy if exists "admins can manage products" on public.products;
@@ -138,14 +164,10 @@ on public.products
 for all
 to authenticated
 using (
-  exists (
-    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
-  )
+  public.is_admin_user()
 )
 with check (
-  exists (
-    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
-  )
+  public.is_admin_user()
 );
 
 drop policy if exists "public can create orders" on public.orders;
@@ -161,12 +183,7 @@ on public.orders
 for select
 to authenticated
 using (
-  exists (
-    select 1
-    from public.admin_users
-    where user_id = auth.uid()
-      and role in ('admin', 'employee')
-  )
+  public.is_backoffice_user()
 );
 
 drop policy if exists "admins can update orders" on public.orders;
@@ -175,14 +192,10 @@ on public.orders
 for update
 to authenticated
 using (
-  exists (
-    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
-  )
+  public.is_admin_user()
 )
 with check (
-  exists (
-    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
-  )
+  public.is_admin_user()
 );
 
 drop policy if exists "users can read own admin record" on public.admin_users;
@@ -197,49 +210,29 @@ create policy "admins can read all admin users"
 on public.admin_users
 for select
 to authenticated
-using (
-  exists (
-    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
-  )
-);
+using (public.is_admin_user());
 
 drop policy if exists "admins can insert admin users" on public.admin_users;
 create policy "admins can insert admin users"
 on public.admin_users
 for insert
 to authenticated
-with check (
-  exists (
-    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
-  )
-);
+with check (public.is_admin_user());
 
 drop policy if exists "admins can update admin users" on public.admin_users;
 create policy "admins can update admin users"
 on public.admin_users
 for update
 to authenticated
-using (
-  exists (
-    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
-  )
-)
-with check (
-  exists (
-    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
-  )
-);
+using (public.is_admin_user())
+with check (public.is_admin_user());
 
 drop policy if exists "admins can delete admin users" on public.admin_users;
 create policy "admins can delete admin users"
 on public.admin_users
 for delete
 to authenticated
-using (
-  exists (
-    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
-  )
-);
+using (public.is_admin_user());
 
 do $$
 begin

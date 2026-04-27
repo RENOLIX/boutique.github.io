@@ -259,23 +259,35 @@ export function AuthProvider({ children }: PropsWithChildren) {
     const {
       data: { subscription },
     } = client.auth.onAuthStateChange((event, nextSession) => {
-      setSession(nextSession ?? null);
-      setUser(nextSession?.user ?? null);
-      void syncRole(nextSession?.user ?? null);
-      setLoading(false);
+      void (async () => {
+        if (!mounted) {
+          return;
+        }
 
-      if (event === "PASSWORD_RECOVERY") {
-        setIsPasswordRecovery(true);
-      }
+        setLoading(true);
+        setSession(nextSession ?? null);
+        setUser(nextSession?.user ?? null);
+        await syncRole(nextSession?.user ?? null);
 
-      if (event === "SIGNED_OUT") {
-        setIsPasswordRecovery(false);
-        setAdminUsers([]);
-      }
+        if (!mounted) {
+          return;
+        }
 
-      if (event === "USER_UPDATED") {
-        setIsPasswordRecovery(false);
-      }
+        if (event === "PASSWORD_RECOVERY") {
+          setIsPasswordRecovery(true);
+        }
+
+        if (event === "SIGNED_OUT") {
+          setIsPasswordRecovery(false);
+          setAdminUsers([]);
+        }
+
+        if (event === "USER_UPDATED") {
+          setIsPasswordRecovery(false);
+        }
+
+        setLoading(false);
+      })();
     });
 
     return () => {
