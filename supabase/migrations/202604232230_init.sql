@@ -41,8 +41,36 @@ create table if not exists public.orders (
 create table if not exists public.admin_users (
   user_id uuid primary key references auth.users(id) on delete cascade,
   email text not null unique,
+  role text not null default 'admin' check (role in ('admin', 'employee')),
   created_at timestamptz not null default timezone('utc', now())
 );
+
+alter table public.admin_users
+add column if not exists role text;
+
+update public.admin_users
+set role = 'admin'
+where role is null;
+
+alter table public.admin_users
+alter column role set default 'admin';
+
+alter table public.admin_users
+alter column role set not null;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'admin_users_role_check'
+  ) then
+    alter table public.admin_users
+    add constraint admin_users_role_check
+    check (role in ('admin', 'employee'));
+  end if;
+end
+$$;
 
 create or replace function public.set_updated_at()
 returns trigger
@@ -74,8 +102,8 @@ set search_path = public
 as $$
 begin
   if not exists (select 1 from public.admin_users) then
-    insert into public.admin_users (user_id, email)
-    values (new.id, new.email)
+    insert into public.admin_users (user_id, email, role)
+    values (new.id, new.email, 'admin')
     on conflict (user_id) do nothing;
   end if;
   return new;
@@ -100,7 +128,7 @@ to anon, authenticated
 using (
   active = true
   or exists (
-    select 1 from public.admin_users where user_id = auth.uid()
+    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
   )
 );
 
@@ -111,12 +139,12 @@ for all
 to authenticated
 using (
   exists (
-    select 1 from public.admin_users where user_id = auth.uid()
+    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
   )
 )
 with check (
   exists (
-    select 1 from public.admin_users where user_id = auth.uid()
+    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
   )
 );
 
@@ -127,14 +155,17 @@ for insert
 to anon, authenticated
 with check (true);
 
-drop policy if exists "admins can read orders" on public.orders;
-create policy "admins can read orders"
+drop policy if exists "backoffice can read orders" on public.orders;
+create policy "backoffice can read orders"
 on public.orders
 for select
 to authenticated
 using (
   exists (
-    select 1 from public.admin_users where user_id = auth.uid()
+    select 1
+    from public.admin_users
+    where user_id = auth.uid()
+      and role in ('admin', 'employee')
   )
 );
 
@@ -145,12 +176,12 @@ for update
 to authenticated
 using (
   exists (
-    select 1 from public.admin_users where user_id = auth.uid()
+    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
   )
 )
 with check (
   exists (
-    select 1 from public.admin_users where user_id = auth.uid()
+    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
   )
 );
 
@@ -160,6 +191,55 @@ on public.admin_users
 for select
 to authenticated
 using (user_id = auth.uid());
+
+drop policy if exists "admins can read all admin users" on public.admin_users;
+create policy "admins can read all admin users"
+on public.admin_users
+for select
+to authenticated
+using (
+  exists (
+    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
+  )
+);
+
+drop policy if exists "admins can insert admin users" on public.admin_users;
+create policy "admins can insert admin users"
+on public.admin_users
+for insert
+to authenticated
+with check (
+  exists (
+    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
+  )
+);
+
+drop policy if exists "admins can update admin users" on public.admin_users;
+create policy "admins can update admin users"
+on public.admin_users
+for update
+to authenticated
+using (
+  exists (
+    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
+  )
+)
+with check (
+  exists (
+    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
+  )
+);
+
+drop policy if exists "admins can delete admin users" on public.admin_users;
+create policy "admins can delete admin users"
+on public.admin_users
+for delete
+to authenticated
+using (
+  exists (
+    select 1 from public.admin_users where user_id = auth.uid() and role = 'admin'
+  )
+);
 
 do $$
 begin

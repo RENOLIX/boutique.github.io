@@ -7,16 +7,24 @@ import {
   Package,
   ShoppingBag,
   Store,
+  Users,
   X,
 } from "lucide-react";
 import BrandLogo from "@/components/shop/BrandLogo";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/providers/auth";
 import { cn } from "@/lib/utils";
+import type { BackofficeRole } from "@/types";
 
-const NAV = [
-  { label: "Produits", href: "/admin/products", icon: Package },
-  { label: "Commandes", href: "/admin/orders", icon: ShoppingBag },
+const NAV: Array<{
+  label: string;
+  href: string;
+  icon: ComponentType<{ className?: string }>;
+  roles: BackofficeRole[];
+}> = [
+  { label: "Produits", href: "/admin/products", icon: Package, roles: ["admin"] },
+  { label: "Commandes", href: "/admin/orders", icon: ShoppingBag, roles: ["admin", "employee"] },
+  { label: "Utilisateurs", href: "/admin/users", icon: Users, roles: ["admin"] },
 ];
 
 function AdminNavLink({
@@ -53,7 +61,13 @@ function AdminNavLink({
 
 export default function AdminLayout() {
   const location = useLocation();
-  const { loading, session, isAdmin, signOut } = useAuth();
+  const {
+    loading,
+    session,
+    role,
+    canAccessBackoffice,
+    signOut,
+  } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -68,20 +82,24 @@ export default function AdminLayout() {
     };
   }, [menuOpen]);
 
+  const visibleNav = useMemo(() => {
+    if (!role) {
+      return [];
+    }
+
+    return NAV.filter((entry) => entry.roles.includes(role));
+  }, [role]);
+
   const currentSection = useMemo(() => {
     const current =
-      NAV.find(
+      visibleNav.find(
         (entry) =>
           location.pathname === entry.href ||
           location.pathname.startsWith(entry.href + "/"),
       ) ?? null;
 
-    if (location.pathname === "/admin") {
-      return "Administration";
-    }
-
     return current?.label ?? "Administration";
-  }, [location.pathname]);
+  }, [location.pathname, visibleNav]);
 
   if (loading) {
     return (
@@ -97,14 +115,14 @@ export default function AdminLayout() {
     return <Navigate to="/admin/login" replace />;
   }
 
-  if (!isAdmin) {
+  if (!canAccessBackoffice) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="max-w-sm text-center">
           <LayoutDashboard className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
           <h1 className="mb-2 font-serif text-2xl font-bold">Acces refuse</h1>
           <p className="mb-6 text-sm text-muted-foreground">
-            Ce compte est bien connecte, mais il n&apos;a pas les droits admin.
+            Ce compte est bien connecte, mais il n&apos;a aucun role back-office.
           </p>
           <div className="flex justify-center gap-3">
             <Link to="/" className="text-xs uppercase tracking-widest underline">
@@ -163,9 +181,14 @@ export default function AdminLayout() {
           <div className="flex items-start justify-between gap-3 border-b border-border p-6">
             <div className="space-y-3">
               <BrandLogo className="h-12 w-[144px]" />
-              <p className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">
-                Admin
-              </p>
+              <div>
+                <p className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">
+                  Admin
+                </p>
+                <p className="mt-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+                  Role : {role === "admin" ? "Administrateur" : "Employe"}
+                </p>
+              </div>
             </div>
             <button
               type="button"
@@ -178,7 +201,7 @@ export default function AdminLayout() {
           </div>
 
           <nav className="flex-1 space-y-1 p-4">
-            {NAV.map(({ label, href, icon: Icon }) => (
+            {visibleNav.map(({ label, href, icon: Icon }) => (
               <AdminNavLink
                 key={href}
                 href={href}

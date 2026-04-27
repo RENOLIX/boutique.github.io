@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Eye, Printer } from "lucide-react";
 import { toast } from "sonner";
 import BrandLogo from "@/components/shop/BrandLogo";
+import { useAuth } from "@/components/providers/auth";
 import { useShop } from "@/hooks/use-shop";
 import type { Order, OrderStatus } from "@/types";
 import { getDeliveryMethodLabel } from "@/lib/shipping";
@@ -185,15 +186,18 @@ function StatusBadge({ status }: { status: OrderStatus }) {
 function StatusSelect({
   orderId,
   status,
+  disabled = false,
   onStatusChange,
 }: {
   orderId: string;
   status: OrderStatus;
+  disabled?: boolean;
   onStatusChange: (id: string, nextStatus: OrderStatus) => Promise<void>;
 }) {
   return (
     <select
       value={status}
+      disabled={disabled}
       onChange={async (event) => {
         try {
           await onStatusChange(orderId, event.target.value as OrderStatus);
@@ -202,7 +206,7 @@ function StatusSelect({
           toast.error(error instanceof Error ? error.message : "Mise a jour impossible");
         }
       }}
-      className="border border-input bg-background px-2 py-2 text-xs w-full sm:w-auto"
+      className="border border-input bg-background px-2 py-2 text-xs w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
     >
       {STATUSES.map((entry) => (
         <option key={entry.value} value={entry.value}>
@@ -292,9 +296,11 @@ function OrderDetails({ order }: { order: Order }) {
 
 function MobileOrderCard({
   order,
+  canUpdateOrders,
   onStatusChange,
 }: {
   order: Order;
+  canUpdateOrders: boolean;
   onStatusChange: (id: string, nextStatus: OrderStatus) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
@@ -327,7 +333,20 @@ function MobileOrderCard({
       </div>
 
       <div className="grid grid-cols-1 gap-3 mt-4">
-        <StatusSelect orderId={order.id} status={order.status} onStatusChange={onStatusChange} />
+        {canUpdateOrders ? (
+          <StatusSelect
+            orderId={order.id}
+            status={order.status}
+            onStatusChange={onStatusChange}
+          />
+        ) : (
+          <div className="flex items-center justify-between rounded-[18px] border border-border bg-[#fff8fb] px-4 py-3">
+            <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+              Statut
+            </span>
+            <StatusBadge status={order.status} />
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
@@ -357,9 +376,11 @@ function MobileOrderCard({
 
 function DesktopOrderRow({
   order,
+  canUpdateOrders,
   onStatusChange,
 }: {
   order: Order;
+  canUpdateOrders: boolean;
   onStatusChange: (id: string, nextStatus: OrderStatus) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
@@ -380,7 +401,15 @@ function DesktopOrderRow({
         </td>
         <td className="px-4 py-3 font-semibold">{formatPrice(order.total)}</td>
         <td className="px-4 py-3" onClick={(event) => event.stopPropagation()}>
-          <StatusSelect orderId={order.id} status={order.status} onStatusChange={onStatusChange} />
+          {canUpdateOrders ? (
+            <StatusSelect
+              orderId={order.id}
+              status={order.status}
+              onStatusChange={onStatusChange}
+            />
+          ) : (
+            <StatusBadge status={order.status} />
+          )}
         </td>
       </tr>
       {open ? (
@@ -395,7 +424,12 @@ function DesktopOrderRow({
 }
 
 export default function AdminOrdersPage() {
+  const { canManageOrders, canUpdateOrders } = useAuth();
   const { orders, updateOrderStatus } = useShop();
+
+  if (!canManageOrders) {
+    return null;
+  }
 
   return (
     <div className="p-4 md:p-8">
@@ -428,6 +462,7 @@ export default function AdminOrdersPage() {
               <MobileOrderCard
                 key={order.id}
                 order={order}
+                canUpdateOrders={canUpdateOrders}
                 onStatusChange={updateOrderStatus}
               />
             ))}
@@ -459,6 +494,7 @@ export default function AdminOrdersPage() {
                   <DesktopOrderRow
                     key={order.id}
                     order={order}
+                    canUpdateOrders={canUpdateOrders}
                     onStatusChange={updateOrderStatus}
                   />
                 ))}

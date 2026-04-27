@@ -1,8 +1,9 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Eye, ImagePlus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import BrandLogo from "@/components/shop/BrandLogo";
+import { useAuth } from "@/components/providers/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -78,6 +79,7 @@ async function optimizeImageFile(file: File) {
 }
 
 export default function AdminProductEditorPage() {
+  const { canManageProducts } = useAuth();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getProductById, createProduct, updateProduct } = useShop();
@@ -90,6 +92,10 @@ export default function AdminProductEditorPage() {
   const [enableSizes, setEnableSizes] = useState(false);
   const [enableShoeSizes, setEnableShoeSizes] = useState(false);
   const [enableColors, setEnableColors] = useState(false);
+
+  if (!canManageProducts) {
+    return <Navigate to="/admin/orders" replace />;
+  }
 
   useEffect(() => {
     if (isNew) {

@@ -1,12 +1,18 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import BrandLogo from "@/components/shop/BrandLogo";
+import { useAuth } from "@/components/providers/auth";
 import { useShop } from "@/hooks/use-shop";
 import { Button } from "@/components/ui/button";
 
 export default function AdminProductsPage() {
+  const { canManageProducts } = useAuth();
   const { products, removeProduct } = useShop();
+
+  if (!canManageProducts) {
+    return <Navigate to="/admin/orders" replace />;
+  }
 
   const handleDelete = async (id: string, name: string) => {
     if (!window.confirm(`Supprimer "${name}" ?`)) {

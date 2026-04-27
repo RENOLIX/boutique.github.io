@@ -173,7 +173,7 @@ function rowToOrder(row: Record<string, unknown>): Order {
 }
 
 export function StoreProvider({ children }: PropsWithChildren) {
-  const { isAdmin } = useAuth();
+  const { canManageOrders, canManageProducts, canUpdateOrders } = useAuth();
   const [products, setProducts] = usePersistentState<Product[]>(PRODUCTS_KEY, () => seedProducts);
   const [orders, setOrders] = usePersistentState<Order[]>(ORDERS_KEY, () => []);
   const [items, setItems] = usePersistentState<CartItem[]>(CART_KEY, () => []);
@@ -211,7 +211,7 @@ export function StoreProvider({ children }: PropsWithChildren) {
   }, [setProducts]);
 
   const fetchOrders = useCallback(async () => {
-    if (!hasSupabaseConfig || !supabase || !isAdmin) {
+    if (!hasSupabaseConfig || !supabase || !canManageOrders) {
       if (hasSupabaseConfig) {
         setOrders([]);
       }
@@ -229,7 +229,7 @@ export function StoreProvider({ children }: PropsWithChildren) {
     }
 
     setOrders((data ?? []).map((row) => rowToOrder(row as Record<string, unknown>)));
-  }, [isAdmin, setOrders]);
+  }, [canManageOrders, setOrders]);
 
   useEffect(() => {
     if (!hasSupabaseConfig || !supabase) {
@@ -263,7 +263,7 @@ export function StoreProvider({ children }: PropsWithChildren) {
     const client = supabase;
     void fetchOrders();
 
-    if (!isAdmin) {
+    if (!canManageOrders) {
       return;
     }
 
@@ -281,10 +281,10 @@ export function StoreProvider({ children }: PropsWithChildren) {
     return () => {
       void client.removeChannel(channel);
     };
-  }, [fetchOrders, isAdmin]);
+  }, [canManageOrders, fetchOrders]);
 
   useEffect(() => {
-    if (!hasSupabaseConfig || !supabase || !isAdmin || seedAttempted || products.length > 0) {
+    if (!hasSupabaseConfig || !supabase || !canManageProducts || seedAttempted || products.length > 0) {
       return;
     }
 
@@ -315,7 +315,7 @@ export function StoreProvider({ children }: PropsWithChildren) {
     };
 
     void seedRemote();
-  }, [fetchProducts, isAdmin, products.length, seedAttempted]);
+  }, [canManageProducts, fetchProducts, products.length, seedAttempted]);
 
   const createProduct = async (draft: ProductDraft) => {
     const normalizedDraft = normalizeProductDraft(draft);
@@ -324,7 +324,11 @@ export function StoreProvider({ children }: PropsWithChildren) {
       id: generateProductId(draft.name),
     };
 
-    if (!hasSupabaseConfig || !supabase || !isAdmin) {
+    if (hasSupabaseConfig && !canManageProducts) {
+      throw new Error("Acces refuse.");
+    }
+
+    if (!hasSupabaseConfig || !supabase) {
       setProducts((currentProducts) => [product, ...currentProducts]);
       return product;
     }
@@ -355,7 +359,11 @@ export function StoreProvider({ children }: PropsWithChildren) {
       ...normalizeProductDraft(draft),
     };
 
-    if (!hasSupabaseConfig || !supabase || !isAdmin) {
+    if (hasSupabaseConfig && !canManageProducts) {
+      throw new Error("Acces refuse.");
+    }
+
+    if (!hasSupabaseConfig || !supabase) {
       setProducts((currentProducts) =>
         currentProducts.map((product) => (product.id === id ? nextProduct : product)),
       );
@@ -410,7 +418,11 @@ export function StoreProvider({ children }: PropsWithChildren) {
   };
 
   const removeProduct = async (id: string) => {
-    if (hasSupabaseConfig && supabase && isAdmin) {
+    if (hasSupabaseConfig && !canManageProducts) {
+      throw new Error("Acces refuse.");
+    }
+
+    if (hasSupabaseConfig && supabase) {
       const { error } = await supabase.from("products").delete().eq("id", id);
 
       if (error) {
@@ -473,7 +485,11 @@ export function StoreProvider({ children }: PropsWithChildren) {
   };
 
   const updateOrderStatus = async (id: string, status: OrderStatus) => {
-    if (hasSupabaseConfig && supabase && isAdmin) {
+    if (hasSupabaseConfig && !canUpdateOrders) {
+      throw new Error("Acces refuse.");
+    }
+
+    if (hasSupabaseConfig && supabase) {
       const { error } = await supabase
         .from("orders")
         .update({ status })
@@ -562,7 +578,11 @@ export function StoreProvider({ children }: PropsWithChildren) {
   };
 
   const resetCatalog = async () => {
-    if (hasSupabaseConfig && supabase && isAdmin) {
+    if (hasSupabaseConfig && !canManageProducts) {
+      throw new Error("Acces refuse.");
+    }
+
+    if (hasSupabaseConfig && supabase) {
       const { error: deleteError } = await supabase.from("products").delete().neq("id", "");
 
       if (deleteError) {

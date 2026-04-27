@@ -1,4 +1,5 @@
 export type ProductCategory = "nouveautes" | "femme" | "homme" | "accessoires";
+export type BackofficeRole = "admin" | "employee";
 
 export type OrderStatus =
   | "pending"
@@ -96,4 +97,11 @@ export interface OrderDraft {
   total: number;
   shippingAddress: ShippingAddress;
   paymentMethod: string;
+}
+
+export interface AdminUserRecord {
+  userId: string;
+  email: string;
+  role: BackofficeRole;
+  createdAt: string;
 }

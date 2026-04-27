@@ -13,6 +13,29 @@ export const supabase = hasSupabaseConfig
       auth: {
         persistSession: true,
         autoRefreshToken: true,
+        detectSessionInUrl: false,
       },
     })
   : null;
+
+export function createSecondarySupabaseClient() {
+  if (!hasSupabaseConfig || !supabaseUrl || !supabasePublishableKey) {
+    return null;
+  }
+
+  return createClient(supabaseUrl, supabasePublishableKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
+}
+
+export function getPasswordRecoveryRedirectUrl() {
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+
+  return `${window.location.origin}${window.location.pathname}`;
+}
