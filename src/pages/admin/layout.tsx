@@ -9,6 +9,7 @@ import {
   Store,
   X,
 } from "lucide-react";
+import BrandLogo from "@/components/shop/BrandLogo";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/providers/auth";
 import { cn } from "@/lib/utils";
@@ -30,17 +31,18 @@ function AdminNavLink({
   onNavigate?: () => void;
 }) {
   const location = useLocation();
-  const active = location.pathname === href || location.pathname.startsWith(href + "/");
+  const active =
+    location.pathname === href || location.pathname.startsWith(href + "/");
 
   return (
     <Link
       to={href}
       onClick={onNavigate}
       className={cn(
-        "flex items-center gap-3 px-4 py-3 text-sm transition-colors rounded-none",
+        "flex items-center gap-3 rounded-none px-4 py-3 text-sm transition-colors",
         active
           ? "bg-foreground text-background"
-          : "text-muted-foreground hover:text-foreground hover:bg-muted",
+          : "text-muted-foreground hover:bg-muted hover:text-foreground",
       )}
     >
       <Icon className="h-4 w-4" />
@@ -68,8 +70,11 @@ export default function AdminLayout() {
 
   const currentSection = useMemo(() => {
     const current =
-      NAV.find((entry) => location.pathname === entry.href || location.pathname.startsWith(entry.href + "/")) ??
-      null;
+      NAV.find(
+        (entry) =>
+          location.pathname === entry.href ||
+          location.pathname.startsWith(entry.href + "/"),
+      ) ?? null;
 
     if (location.pathname === "/admin") {
       return "Administration";
@@ -81,7 +86,9 @@ export default function AdminLayout() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">Chargement de la session admin...</p>
+        <p className="text-sm text-muted-foreground">
+          Chargement de la session admin...
+        </p>
       </div>
     );
   }
@@ -93,20 +100,20 @@ export default function AdminLayout() {
   if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
-        <div className="text-center max-w-sm">
-          <LayoutDashboard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h1 className="font-serif text-2xl font-bold mb-2">Acces refuse</h1>
-          <p className="text-sm text-muted-foreground mb-6">
-            Ce compte est bien connecte, mais il n'a pas les droits admin.
+        <div className="max-w-sm text-center">
+          <LayoutDashboard className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+          <h1 className="mb-2 font-serif text-2xl font-bold">Acces refuse</h1>
+          <p className="mb-6 text-sm text-muted-foreground">
+            Ce compte est bien connecte, mais il n&apos;a pas les droits admin.
           </p>
           <div className="flex justify-center gap-3">
-            <Link to="/" className="text-xs tracking-widest uppercase underline">
+            <Link to="/" className="text-xs uppercase tracking-widest underline">
               Retour boutique
             </Link>
             <button
               type="button"
               onClick={() => void signOut()}
-              className="text-xs tracking-widest uppercase underline"
+              className="text-xs uppercase tracking-widest underline"
             >
               Deconnexion
             </button>
@@ -118,11 +125,11 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="lg:hidden sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
+      <div className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur lg:hidden">
         <div className="flex items-center justify-between px-4 py-4">
-          <div>
-            <p className="font-serif text-lg font-bold tracking-[0.2em] uppercase">MAISON</p>
-            <p className="text-[11px] text-muted-foreground tracking-[0.22em] uppercase mt-1">
+          <div className="space-y-2">
+            <BrandLogo className="h-10 w-[124px]" />
+            <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
               {currentSection}
             </p>
           </div>
@@ -149,28 +156,28 @@ export default function AdminLayout() {
       <div className="flex min-h-screen">
         <aside
           className={cn(
-            "fixed inset-y-0 left-0 z-[60] w-[84vw] max-w-[320px] border-r border-border bg-sidebar flex flex-col transition-transform duration-300 lg:static lg:z-auto lg:w-64 lg:max-w-none lg:translate-x-0",
+            "fixed inset-y-0 left-0 z-[60] flex w-[84vw] max-w-[320px] flex-col border-r border-border bg-sidebar transition-transform duration-300 lg:static lg:z-auto lg:w-64 lg:max-w-none lg:translate-x-0",
             menuOpen ? "translate-x-0" : "-translate-x-full",
           )}
         >
-          <div className="p-6 border-b border-border flex items-start justify-between gap-3">
-            <div>
-              <p className="font-serif text-lg font-bold tracking-[0.2em] uppercase">MAISON</p>
-              <p className="text-xs text-muted-foreground tracking-widest uppercase mt-1">
+          <div className="flex items-start justify-between gap-3 border-b border-border p-6">
+            <div className="space-y-3">
+              <BrandLogo className="h-12 w-[144px]" />
+              <p className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">
                 Admin
               </p>
             </div>
             <button
               type="button"
               onClick={() => setMenuOpen(false)}
-              className="lg:hidden h-10 w-10 inline-flex items-center justify-center border border-border"
+              className="inline-flex h-10 w-10 items-center justify-center border border-border lg:hidden"
               aria-label="Fermer le menu admin"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
 
-          <nav className="flex-1 p-4 space-y-1">
+          <nav className="flex-1 space-y-1 p-4">
             {NAV.map(({ label, href, icon: Icon }) => (
               <AdminNavLink
                 key={href}
@@ -182,11 +189,11 @@ export default function AdminLayout() {
             ))}
           </nav>
 
-          <div className="p-4 border-t border-border space-y-3">
+          <div className="space-y-3 border-t border-border p-4">
             <Button
               variant="ghost"
               size="sm"
-              className="w-full justify-start rounded-none px-0 text-xs tracking-widest uppercase"
+              className="w-full justify-start rounded-none px-0 text-xs uppercase tracking-widest"
               onClick={() => void signOut()}
             >
               <LogOut className="h-4 w-4" /> Deconnexion
@@ -194,15 +201,15 @@ export default function AdminLayout() {
             <Link
               to="/"
               onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors tracking-widest uppercase"
+              className="flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
             >
               <Store className="h-4 w-4" /> Voir la boutique
             </Link>
           </div>
         </aside>
 
-        <main className="flex-1 min-w-0">
-          <div className="hidden lg:flex border-b border-border px-8 py-4 items-center gap-3 text-muted-foreground">
+        <main className="min-w-0 flex-1">
+          <div className="hidden items-center gap-3 border-b border-border px-8 py-4 text-muted-foreground lg:flex">
             <LayoutDashboard className="h-4 w-4" />
             <span className="text-xs uppercase tracking-[0.26em]">
               {currentSection}

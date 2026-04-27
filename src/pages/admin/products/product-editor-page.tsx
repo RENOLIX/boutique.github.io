@@ -2,6 +2,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Eye, ImagePlus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import BrandLogo from "@/components/shop/BrandLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -233,8 +234,10 @@ export default function AdminProductEditorPage() {
 
   return (
     <div className="p-4 md:p-8">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
-        <div>
+      <div className="mb-8 flex flex-col gap-4 rounded-[28px] border border-border bg-white/80 p-5 shadow-[0_24px_70px_-52px_rgba(219,97,149,0.5)] md:flex-row md:items-center md:justify-between">
+        <div className="space-y-3">
+          <BrandLogo className="h-12 w-[150px]" />
+          <div>
           <Link
             to="/admin/products"
             className="inline-flex items-center gap-2 text-xs tracking-widest uppercase text-muted-foreground hover:text-foreground mb-3"
@@ -249,6 +252,7 @@ export default function AdminProductEditorPage() {
               ? "Creez un nouvel article. Sa page publique sera generee automatiquement."
               : "Modifiez les informations du produit existant."}
           </p>
+          </div>
         </div>
 
         {!isNew && product ? (
@@ -260,18 +264,18 @@ export default function AdminProductEditorPage() {
         ) : null}
       </div>
 
-      <form onSubmit={handleSubmit} className="max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="md:col-span-2 space-y-1">
+      <form onSubmit={handleSubmit} className="grid max-w-4xl grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="space-y-1 rounded-[24px] border border-border bg-white/75 p-5 md:col-span-2">
           <Label>Nom *</Label>
           <Input name="name" value={form.name} onChange={handleChange} placeholder="Robe classique" />
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1 rounded-[24px] border border-border bg-white/75 p-5">
           <Label>Prix (DZD) *</Label>
           <Input name="price" type="number" value={form.price} onChange={handleChange} />
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1 rounded-[24px] border border-border bg-white/75 p-5">
           <Label>Prix barre (DZD)</Label>
           <Input
             name="comparePrice"
@@ -281,7 +285,7 @@ export default function AdminProductEditorPage() {
           />
         </div>
 
-        <div className="md:col-span-2 space-y-1">
+        <div className="space-y-1 rounded-[24px] border border-border bg-white/75 p-5 md:col-span-2">
           <Label>Categorie</Label>
           <select
             name="category"
@@ -297,7 +301,7 @@ export default function AdminProductEditorPage() {
           </select>
         </div>
 
-        <div className="md:col-span-2 space-y-1">
+        <div className="space-y-1 rounded-[24px] border border-border bg-white/75 p-5 md:col-span-2">
           <Label>Description</Label>
           <textarea
             name="description"
@@ -308,7 +312,7 @@ export default function AdminProductEditorPage() {
           />
         </div>
 
-        <div className="md:col-span-2 space-y-4">
+        <div className="space-y-4 rounded-[24px] border border-border bg-white/78 p-5 shadow-[0_20px_60px_-54px_rgba(219,97,149,0.7)] md:col-span-2">
           <div className="flex flex-col gap-1">
             <Label>Images du produit</Label>
             <p className="text-xs text-muted-foreground">
@@ -317,7 +321,7 @@ export default function AdminProductEditorPage() {
             </p>
           </div>
 
-          <label className="flex flex-col items-center justify-center gap-3 border border-dashed border-border px-6 py-10 text-center cursor-pointer hover:border-foreground transition-colors">
+          <label className="flex cursor-pointer flex-col items-center justify-center gap-3 border border-dashed border-border bg-[#fff8fb] px-6 py-10 text-center transition-colors hover:border-foreground">
             <input
               type="file"
               accept="image/*"
@@ -343,7 +347,7 @@ export default function AdminProductEditorPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {form.images.map((image, index) => (
                 <div key={`${index}-${image.slice(0, 24)}`} className="space-y-2">
-                  <div className="relative aspect-[3/4] overflow-hidden bg-muted border border-border">
+                    <div className="relative aspect-[3/4] overflow-hidden border border-border bg-muted">
                     <img
                       src={image}
                       alt={`Produit ${index + 1}`}
@@ -352,7 +356,7 @@ export default function AdminProductEditorPage() {
                     <button
                       type="button"
                       onClick={() => removeImage(index)}
-                      className="absolute top-2 right-2 w-8 h-8 bg-white/90 text-foreground flex items-center justify-center border border-border hover:bg-white"
+                      className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center border border-border bg-white/90 text-foreground hover:bg-white"
                       aria-label={`Supprimer l'image ${index + 1}`}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -371,7 +375,7 @@ export default function AdminProductEditorPage() {
           )}
         </div>
 
-        <div className="md:col-span-2 border border-border p-4 space-y-4">
+        <div className="space-y-4 rounded-[24px] border border-border bg-white/75 p-5 md:col-span-2">
           <div>
             <p className="font-medium text-sm">Options produit</p>
             <p className="text-xs text-muted-foreground mt-1">
@@ -443,12 +447,12 @@ export default function AdminProductEditorPage() {
           ) : null}
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1 rounded-[24px] border border-border bg-white/75 p-5">
           <Label>Stock</Label>
           <Input name="stock" type="number" value={form.stock} onChange={handleChange} />
         </div>
 
-        <div className="flex items-center gap-6 pt-7">
+        <div className="flex items-center gap-6 rounded-[24px] border border-border bg-white/75 p-5">
           <label className="flex items-center gap-2 text-sm cursor-pointer">
             <input
               type="checkbox"
@@ -469,7 +473,7 @@ export default function AdminProductEditorPage() {
           </label>
         </div>
 
-        <div className="md:col-span-2 flex flex-wrap gap-3 pt-3">
+        <div className="flex flex-wrap gap-3 pt-3 md:col-span-2">
           <Button type="submit" size="lg" disabled={saving || uploadingImages}>
             {saving ? "Enregistrement..." : "Enregistrer"}
           </Button>

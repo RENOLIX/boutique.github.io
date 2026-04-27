@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
@@ -7,6 +7,7 @@
   --font-sans: "Jost", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-brand: "Alex Brush", cursive;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -26,29 +27,35 @@
 }
 
 :root {
-  --background: oklch(0.985 0.005 75);
-  --foreground: oklch(0.18 0.01 70);
-  --muted: oklch(0.96 0.004 80);
-  --muted-foreground: oklch(0.52 0.01 70);
-  --border: oklch(0.89 0.006 80);
-  --input: oklch(0.91 0.004 80);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.01 70);
-  --primary: oklch(0.17 0.01 70);
-  --primary-foreground: oklch(0.99 0.003 85);
-  --secondary: oklch(0.95 0.004 80);
-  --secondary-foreground: oklch(0.22 0.01 70);
-  --accent: oklch(0.76 0.04 66);
-  --accent-foreground: oklch(0.18 0.01 70);
-  --sidebar: oklch(0.975 0.004 80);
+  --background: oklch(0.989 0.01 4);
+  --foreground: oklch(0.3 0.055 6);
+  --muted: oklch(0.967 0.018 3);
+  --muted-foreground: oklch(0.55 0.045 8);
+  --border: oklch(0.918 0.02 3);
+  --input: oklch(0.948 0.02 3);
+  --card: oklch(0.998 0.006 4);
+  --card-foreground: oklch(0.3 0.055 6);
+  --primary: oklch(0.72 0.13 5);
+  --primary-foreground: oklch(0.995 0.004 4);
+  --secondary: oklch(0.955 0.02 3);
+  --secondary-foreground: oklch(0.3 0.055 6);
+  --accent: oklch(0.9 0.04 4);
+  --accent-foreground: oklch(0.3 0.055 6);
+  --sidebar: oklch(0.982 0.012 4);
 }
 
 .marble-bg {
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.72)),
+    linear-gradient(rgba(255, 248, 251, 0.84), rgba(255, 241, 247, 0.84)),
     url("https://hercules-cdn.com/file_JzdUalpuEPGHJqigEqNeXgfj");
   background-size: cover;
   background-position: center;
+}
+
+.font-brand {
+  font-family: var(--font-brand);
+  font-weight: 400;
+  letter-spacing: 0.02em;
 }
 
 @layer base {
@@ -62,9 +69,17 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    background-image:
+      radial-gradient(circle at top, rgba(244, 186, 210, 0.24), transparent 34%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 244, 249, 0.96));
   }
 
   img {
     @apply select-none;
+  }
+
+  ::selection {
+    background: rgba(229, 117, 165, 0.24);
+    color: inherit;
   }
 }

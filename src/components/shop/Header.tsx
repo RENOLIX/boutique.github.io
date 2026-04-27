@@ -1,32 +1,24 @@
 import { Link, NavLink } from "react-router-dom";
 import { ShoppingBag } from "lucide-react";
+import BrandLogo from "@/components/shop/BrandLogo";
 import { useCart } from "@/hooks/use-cart";
 import { cn } from "@/lib/utils";
-import logoUrl from "@/assets/logo-maison.svg";
 
 const NAV = [
   { label: "Accueil", href: "/" },
   { label: "Boutique", href: "/shop" },
-  { label: "À propos", href: "/about" },
+  { label: "A propos", href: "/about" },
 ];
 
 export default function Header() {
   const { cartCount } = useCart();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-border bg-white/92 backdrop-blur shadow-[0_10px_30px_-28px_rgba(219,97,149,0.95)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex h-[72px] items-center justify-between gap-4">
-          <Link to="/" className="flex items-center gap-3 shrink-0">
-            <img src={logoUrl} alt="MAISON" className="h-10 w-10" />
-            <div className="leading-none">
-              <p className="font-serif text-xl font-bold tracking-[0.18em] uppercase">
-                MAISON
-              </p>
-              <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground mt-1">
-                Alger
-              </p>
-            </div>
+          <Link to="/" className="shrink-0" aria-label="Retour a Mina Boutique">
+            <BrandLogo className="h-[58px] w-[176px] sm:h-[62px] sm:w-[188px]" />
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
@@ -37,7 +29,9 @@ export default function Header() {
                 className={({ isActive }) =>
                   cn(
                     "text-xs uppercase tracking-[0.26em] transition-colors",
-                    isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                    isActive
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
                   )
                 }
               >
@@ -48,7 +42,7 @@ export default function Header() {
 
           <Link
             to="/cart"
-            className="inline-flex items-center gap-3 border border-border px-4 py-3 text-xs uppercase tracking-[0.24em] hover:border-foreground transition-colors shrink-0"
+            className="inline-flex items-center gap-3 border border-border bg-white/70 px-4 py-3 text-xs uppercase tracking-[0.24em] hover:border-foreground transition-colors shrink-0"
           >
             <ShoppingBag className="h-4 w-4" />
             <span className="hidden sm:inline">Panier</span>

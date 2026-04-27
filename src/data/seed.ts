@@ -135,8 +135,8 @@ export const seedProducts: Product[] = [
     active: true,
   },
   {
-    id: "capsule-maison-2417",
-    name: "Capsule Maison 2026",
+    id: "capsule-mina-2417",
+    name: "Capsule Mina 2026",
     description:
       "Piece de nouveaute en edition limitee, pensee pour la nouvelle collection de saison avec lignes sobres et coupe actuelle.",
     price: 9900,

@@ -7,33 +7,33 @@ import Footer from "@/components/shop/Footer";
 const TEAM = [
   {
     name: "Yasmine Benali",
-    role: "Fondatrice & Directrice Créative",
+    role: "Fondatrice & Directrice creative",
     img: "https://images.unsplash.com/photo-1607997637503-d4d8dee871e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400",
   },
   {
     name: "Riad Aouad",
-    role: "Responsable Collections",
+    role: "Responsable collections",
     img: "https://images.unsplash.com/photo-1559038217-3fb2db6186f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400",
   },
   {
     name: "Nadia Cherif",
-    role: "Styliste & Modéliste",
+    role: "Styliste & modeliste",
     img: "https://images.unsplash.com/photo-1765229276796-c93c73cc3f3b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400",
   },
 ];
 
 const VALUES = [
   {
-    title: "Authenticité",
-    desc: "Chaque collection mêle lignes contemporaines et sensibilité locale pour proposer une mode simple, élégante et ancrée dans son époque.",
+    title: "Authenticite",
+    desc: "Chaque collection melange lignes contemporaines, douceur visuelle et details soignes pour proposer une mode simple et feminine.",
   },
   {
-    title: "Qualité",
-    desc: "Nous sélectionnons des matières agréables à porter et des coupes justes, pour des vêtements qui tiennent dans le temps.",
+    title: "Qualite",
+    desc: "Nous selectionnons des matieres agreables a porter, des coupes nettes et des finitions propres pour des pieces qui durent.",
   },
   {
-    title: "Accessibilité",
-    desc: "Notre objectif est de proposer une mode soignée à un prix juste, adaptée à la clientèle algérienne et à son quotidien.",
+    title: "Accessibilite",
+    desc: "Notre objectif est de proposer une mode soignee a un prix juste, pensee pour le quotidien et les envies de la cliente algerienne.",
   },
 ];
 
@@ -45,52 +45,61 @@ export default function AboutPage() {
       <section className="relative h-[55vh] overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1772570824145-e996a55204fb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080"
-          alt="À propos"
-          className="w-full h-full object-cover"
+          alt="A propos"
+          className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-center px-4">
+        <div className="absolute inset-0 flex items-center justify-center bg-[#351f2a]/50 px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
           >
-            <p className="text-white/60 text-xs tracking-[0.4em] uppercase mb-3">
+            <p className="mb-3 text-xs uppercase tracking-[0.4em] text-white/60">
               Notre histoire
             </p>
-            <h1 className="font-serif text-4xl md:text-6xl font-bold text-white text-balance">
-              À Propos de MAISON
+            <h1 className="font-serif text-4xl font-bold text-white md:text-6xl">
+              A propos de{" "}
+              <span className="font-brand text-5xl font-normal md:text-7xl">
+                Mina
+              </span>{" "}
+              Boutique
             </h1>
           </motion.div>
         </div>
       </section>
 
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 py-20 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-14 items-center">
+      <section className="mx-auto w-full max-w-4xl px-4 py-20 sm:px-6">
+        <div className="grid grid-cols-1 items-center gap-14 md:grid-cols-2">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <p className="text-xs tracking-[0.4em] uppercase text-muted-foreground mb-3">
+            <p className="mb-3 text-xs uppercase tracking-[0.4em] text-muted-foreground">
               Depuis 2021
             </p>
-            <h2 className="font-serif text-3xl font-bold mb-6 leading-tight">
-              Une marque née à Alger,
+            <h2 className="mb-6 font-serif text-3xl font-bold leading-tight">
+              Une boutique nee a Alger,
               <br />
-              pour le quotidien
+              pour le quotidien feminin
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-              MAISON est née d'une idée simple : proposer une mode élégante,
-              actuelle et facile à porter, sans compliquer l'achat ni les prix.
+            <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+              <span className="font-brand text-2xl leading-none text-primary">
+                Mina
+              </span>{" "}
+              Boutique est nee d&apos;une idee simple : proposer une mode
+              elegante, actuelle et facile a porter, sans compliquer l&apos;achat
+              ni les prix.
             </p>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-              Nos collections sont pensées à Alger pour une clientèle qui cherche
-              de belles pièces, des coupes propres et une expérience d'achat claire.
+            <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+              Nos collections sont pensees a Alger pour une clientele qui cherche
+              de belles pieces, des coupes propres et une experience d&apos;achat
+              rassurante du premier clic jusqu&apos;a la livraison.
             </p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Nous privilégions les séries maîtrisées, les finitions soignées et la
-              livraison locale avec paiement à la livraison.
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Nous privilegions les series maitrisees, les finitions soignees et
+              une palette douce ou le blanc rencontre le rose avec naturel.
             </p>
           </motion.div>
 
@@ -103,28 +112,30 @@ export default function AboutPage() {
           >
             <img
               src="https://images.unsplash.com/photo-1603798125914-7b5d27789248?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=700"
-              alt="Notre atelier"
-              className="w-full h-full object-cover"
+              alt="Atelier Mina Boutique"
+              className="h-full w-full object-cover"
             />
           </motion.div>
         </div>
       </section>
 
-      <section className="marble-bg py-20 px-4">
-        <div className="max-w-5xl mx-auto">
+      <section className="marble-bg px-4 py-20">
+        <div className="mx-auto max-w-5xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
-            className="text-center mb-14"
+            className="mb-14 text-center"
           >
-            <p className="text-xs tracking-[0.4em] uppercase text-muted-foreground mb-2">
+            <p className="mb-2 text-xs uppercase tracking-[0.4em] text-muted-foreground">
               Ce qui nous guide
             </p>
-            <h2 className="font-serif text-2xl md:text-3xl font-bold">Nos valeurs</h2>
+            <h2 className="font-serif text-2xl font-bold md:text-3xl">
+              Nos valeurs
+            </h2>
           </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {VALUES.map((value, index) => (
               <motion.div
                 key={value.title}
@@ -132,11 +143,13 @@ export default function AboutPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-white/75 backdrop-blur p-6"
+                className="bg-white/75 p-6 backdrop-blur"
               >
-                <div className="w-8 h-px bg-foreground mb-4" />
-                <h3 className="font-serif text-lg font-bold mb-2">{value.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <div className="mb-4 h-px w-8 bg-foreground" />
+                <h3 className="mb-2 font-serif text-lg font-bold">
+                  {value.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">
                   {value.desc}
                 </p>
               </motion.div>
@@ -145,20 +158,22 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 py-20 w-full">
+      <section className="mx-auto w-full max-w-5xl px-4 py-20 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
-          className="text-center mb-14"
+          className="mb-14 text-center"
         >
-          <p className="text-xs tracking-[0.4em] uppercase text-muted-foreground mb-2">
-            Derrière MAISON
+          <p className="mb-2 text-xs uppercase tracking-[0.4em] text-muted-foreground">
+            Derriere Mina Boutique
           </p>
-          <h2 className="font-serif text-2xl md:text-3xl font-bold">L'équipe</h2>
+          <h2 className="font-serif text-2xl font-bold md:text-3xl">
+            L&apos;equipe
+          </h2>
         </motion.div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {TEAM.map((member, index) => (
             <motion.div
               key={member.name}
@@ -168,15 +183,15 @@ export default function AboutPage() {
               viewport={{ once: true }}
               className="text-center"
             >
-              <div className="aspect-square overflow-hidden mb-4 bg-muted">
+              <div className="mb-4 aspect-square overflow-hidden bg-muted">
                 <img
                   src={member.img}
                   alt={member.name}
-                  className="w-full h-full object-cover object-top"
+                  className="h-full w-full object-cover object-top"
                 />
               </div>
               <h3 className="font-serif text-lg font-bold">{member.name}</h3>
-              <p className="text-xs text-muted-foreground tracking-wide mt-1">
+              <p className="mt-1 text-xs tracking-wide text-muted-foreground">
                 {member.role}
               </p>
             </motion.div>
@@ -184,22 +199,22 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="bg-foreground text-background py-16 text-center px-4">
+      <section className="bg-foreground px-4 py-16 text-center text-background">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
         >
-          <h2 className="font-serif text-3xl font-bold mb-4">
-            Découvrez la collection
+          <h2 className="mb-4 font-serif text-3xl font-bold">
+            Decouvrez la collection
           </h2>
-          <p className="text-background/60 text-sm mb-8">
-            Livraison dans Alger. Paiement à la livraison.
+          <p className="mb-8 text-sm text-background/70">
+            Livraison dans Alger. Paiement a la livraison.
           </p>
           <Link
             to="/shop"
-            className="inline-flex items-center gap-2 border border-background text-background text-xs font-semibold tracking-widest uppercase px-8 py-4 hover:bg-background hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-2 border border-background px-8 py-4 text-xs font-semibold uppercase tracking-widest text-background transition-colors hover:bg-background hover:text-foreground"
           >
             Explorer la boutique <ArrowRight className="h-4 w-4" />
           </Link>

@@ -1,46 +1,50 @@
 import { Link } from "react-router-dom";
-import { Instagram, Mail, MapPin, Phone, ShieldCheck, Truck } from "lucide-react";
-import logoUrl from "@/assets/logo-maison.svg";
+import {
+  Instagram,
+  Mail,
+  MapPin,
+  Phone,
+  ShieldCheck,
+  Truck,
+} from "lucide-react";
+import BrandLogo from "@/components/shop/BrandLogo";
 
 const LINKS = [
   { label: "Accueil", href: "/" },
   { label: "Boutique", href: "/shop" },
-  { label: "À propos", href: "/about" },
+  { label: "A propos", href: "/about" },
   { label: "Panier", href: "/cart" },
 ];
 
 export default function Footer() {
   return (
-    <footer className="border-t border-border bg-white">
+    <footer className="border-t border-border bg-gradient-to-b from-white to-[#fff3f8]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr_0.8fr] gap-12">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.2fr_0.8fr_0.8fr]">
           <div>
-            <div className="flex items-center gap-3 mb-5">
-              <img src={logoUrl} alt="MAISON" className="h-11 w-11" />
-              <div>
-                <p className="font-serif text-2xl font-bold tracking-[0.14em] uppercase">
-                  MAISON
-                </p>
-                <p className="text-xs tracking-[0.28em] uppercase text-muted-foreground">
-                  Maison de mode à Alger
-                </p>
-              </div>
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
-              Collections femme, homme et accessoires conçues pour un vestiaire
-              moderne, élégant et accessible. Livraison dans les communes d'Alger
-              avec paiement à la livraison.
+            <BrandLogo
+              className="mb-5 h-[88px] w-[220px]"
+              imageClassName="object-[center_34%] scale-100"
+            />
+            <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
+              <span className="font-brand text-[1.65rem] leading-none text-primary">
+                Mina
+              </span>{" "}
+              Boutique propose des collections femme, homme et accessoires au
+              style propre, feminin et facile a porter. Livraison rapide,
+              paiement a la livraison et experience simple du panier jusqu'a la
+              reception.
             </p>
           </div>
 
           <div>
-            <p className="font-serif text-xl font-semibold mb-4">Navigation</p>
+            <p className="mb-4 font-serif text-xl font-semibold">Navigation</p>
             <div className="grid gap-3 text-sm text-muted-foreground">
               {LINKS.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
-                  className="hover:text-foreground transition-colors"
+                  className="transition-colors hover:text-foreground"
                 >
                   {link.label}
                 </Link>
@@ -49,7 +53,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <p className="font-serif text-xl font-semibold mb-4">Infos utiles</p>
+            <p className="mb-4 font-serif text-xl font-semibold">Infos utiles</p>
             <div className="grid gap-3 text-sm text-muted-foreground">
               <p className="flex items-center gap-2">
                 <MapPin className="h-4 w-4" /> Hydra, Alger
@@ -58,19 +62,19 @@ export default function Footer() {
                 <Phone className="h-4 w-4" /> +213 550 12 34 56
               </p>
               <p className="flex items-center gap-2">
-                <Mail className="h-4 w-4" /> contact@maisonalger.dz
+                <Mail className="h-4 w-4" /> contact@minaboutique.dz
               </p>
               <p className="flex items-center gap-2">
-                <Truck className="h-4 w-4" /> Livraison 2 à 5 jours
+                <Truck className="h-4 w-4" /> Livraison 2 a 5 jours
               </p>
               <p className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4" /> Paiement à la livraison
+                <ShieldCheck className="h-4 w-4" /> Paiement a la livraison
               </p>
               <a
                 href="https://instagram.com"
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2 hover:text-foreground transition-colors"
+                className="flex items-center gap-2 transition-colors hover:text-foreground"
               >
                 <Instagram className="h-4 w-4" /> Instagram
               </a>
@@ -78,9 +82,9 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row gap-3 justify-between text-xs uppercase tracking-[0.22em] text-muted-foreground">
-          <p>© 2026 MAISON Alger</p>
-          <p>Mode élégante, livraison locale, paiement simple</p>
+        <div className="mt-10 flex flex-col justify-between gap-3 border-t border-border pt-6 text-xs uppercase tracking-[0.22em] text-muted-foreground sm:flex-row">
+          <p>© 2026 Mina Boutique</p>
+          <p>Rose, blanc, livraison locale et paiement simple</p>
         </div>
       </div>
     </footer>

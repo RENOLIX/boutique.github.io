@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Eye, Printer } from "lucide-react";
 import { toast } from "sonner";
+import BrandLogo from "@/components/shop/BrandLogo";
 import { useShop } from "@/hooks/use-shop";
 import type { Order, OrderStatus } from "@/types";
 import { getDeliveryMethodLabel } from "@/lib/shipping";
@@ -65,9 +66,11 @@ function buildPrintableOrderHtml(order: Order) {
       .wrap { max-width: 920px; margin: 0 auto; }
       .head { display: flex; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
       h1, h2, h3, p { margin: 0; }
-      h1 { font-size: 28px; letter-spacing: 0.18em; }
+      h1 { font-size: 28px; letter-spacing: 0.1em; }
       h2 { font-size: 16px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.12em; }
       .muted { color: #666; }
+      .brand-script { font-family: "Brush Script MT", "Segoe Script", cursive; font-size: 44px; letter-spacing: 0; color: #d85b92; }
+      .brand-sub { font-size: 13px; text-transform: uppercase; letter-spacing: 0.35em; margin-left: 10px; }
       .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
       .box { border: 1px solid #ddd; padding: 18px; }
       table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
@@ -84,7 +87,7 @@ function buildPrintableOrderHtml(order: Order) {
     <div class="wrap">
       <div class="head">
         <div>
-          <h1>MAISON</h1>
+          <h1><span class="brand-script">Mina</span><span class="brand-sub">Boutique</span></h1>
           <p class="muted">Bordereau de commande / livraison</p>
         </div>
         <div>
@@ -134,7 +137,7 @@ function buildPrintableOrderHtml(order: Order) {
       </div>
 
       <div class="footer">
-        <p>Document genere depuis le panneau d'administration MAISON.</p>
+        <p>Document genere depuis le panneau d'administration Mina Boutique.</p>
       </div>
     </div>
   </body>
@@ -276,7 +279,7 @@ function OrderDetails({ order }: { order: Order }) {
           <button
             type="button"
             onClick={() => printOrder(order)}
-            className="inline-flex items-center gap-2 border border-border px-4 py-2 text-xs uppercase tracking-[0.18em]"
+            className="inline-flex items-center gap-2 border border-border bg-white/75 px-4 py-2 text-xs uppercase tracking-[0.18em]"
           >
             <Printer className="h-4 w-4" /> Imprimer le bordereau
           </button>
@@ -297,7 +300,7 @@ function MobileOrderCard({
   const [open, setOpen] = useState(false);
 
   return (
-    <article className="border border-border bg-white p-4">
+    <article className="rounded-[24px] border border-border bg-white/85 p-4 shadow-[0_20px_60px_-54px_rgba(219,97,149,0.7)]">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="font-mono text-xs font-medium">{order.orderNumber}</p>
@@ -329,14 +332,14 @@ function MobileOrderCard({
           <button
             type="button"
             onClick={() => setOpen((current) => !current)}
-            className="h-10 border border-border inline-flex items-center justify-center gap-2 text-xs uppercase tracking-[0.18em]"
+            className="inline-flex h-10 items-center justify-center gap-2 border border-border bg-white/75 text-xs uppercase tracking-[0.18em]"
           >
             <Eye className="h-4 w-4" /> {open ? "Masquer" : "Details"}
           </button>
           <button
             type="button"
             onClick={() => printOrder(order)}
-            className="h-10 border border-border inline-flex items-center justify-center gap-2 text-xs uppercase tracking-[0.18em]"
+            className="inline-flex h-10 items-center justify-center gap-2 border border-border bg-white/75 text-xs uppercase tracking-[0.18em]"
           >
             <Printer className="h-4 w-4" /> Imprimer
           </button>
@@ -396,13 +399,23 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="p-4 md:p-8">
-      <div className="mb-8">
-        <h1 className="font-serif text-2xl md:text-3xl font-bold">Commandes</h1>
-        <p className="text-sm text-muted-foreground mt-1">{orders.length} commande(s)</p>
+      <div className="mb-8 rounded-[28px] border border-border bg-white/80 p-5 shadow-[0_24px_70px_-52px_rgba(219,97,149,0.5)]">
+        <div className="space-y-3">
+          <BrandLogo className="h-12 w-[150px]" />
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.34em] text-muted-foreground">
+              Mina admin
+            </p>
+            <h1 className="font-serif text-2xl font-bold md:text-3xl">Commandes</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {orders.length} commande(s) a suivre
+            </p>
+          </div>
+        </div>
       </div>
 
       {orders.length === 0 ? (
-        <div className="text-center py-16 md:py-24 border border-dashed border-border">
+        <div className="rounded-[28px] border border-dashed border-border bg-white/70 py-16 text-center md:py-24">
           <p className="font-serif text-xl mb-2">Aucune commande</p>
           <p className="text-sm text-muted-foreground">
             Les commandes passees sur la boutique apparaitront ici.
@@ -420,9 +433,9 @@ export default function AdminOrdersPage() {
             ))}
           </div>
 
-          <div className="hidden md:block border border-border overflow-hidden">
+          <div className="hidden overflow-hidden rounded-[28px] border border-border bg-white/80 shadow-[0_24px_70px_-54px_rgba(219,97,149,0.55)] md:block">
             <table className="w-full text-sm">
-              <thead className="bg-muted">
+              <thead className="bg-[#fff4f8]">
                 <tr>
                   <th className="text-left px-4 py-3 text-xs font-semibold tracking-widest uppercase">
                     N° commande

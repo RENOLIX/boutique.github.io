@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { LockKeyhole } from "lucide-react";
+import BrandLogo from "@/components/shop/BrandLogo";
 import { useAuth } from "@/components/providers/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,18 +40,19 @@ export default function AdminLoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md border border-border bg-white p-8">
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 border border-border flex items-center justify-center mx-auto mb-4">
+      <div className="w-full max-w-md border border-border bg-white/95 p-8 shadow-[0_18px_50px_-32px_rgba(219,97,149,0.45)]">
+        <div className="mb-8 text-center">
+          <BrandLogo className="mx-auto mb-5 h-14 w-[172px]" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center border border-border">
             <LockKeyhole className="h-5 w-5" />
           </div>
-          <h1 className="font-serif text-3xl font-bold mb-2">Administration</h1>
+          <h1 className="mb-2 font-serif text-3xl font-bold">Administration</h1>
           <p className="text-sm text-muted-foreground">
             Connexion admin uniquement avec email et mot de passe.
           </p>
           {!hasSupabaseConfig ? (
-            <p className="text-xs text-red-600 mt-3">
-              Supabase n'est pas encore configure dans l'application.
+            <p className="mt-3 text-xs text-red-600">
+              Supabase n&apos;est pas encore configure dans l&apos;application.
             </p>
           ) : null}
         </div>
@@ -63,7 +65,7 @@ export default function AdminLoginPage() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               required
-              placeholder="admin@maisonalger.dz"
+              placeholder="admin@minaboutique.dz"
             />
           </div>
 
@@ -84,9 +86,10 @@ export default function AdminLoginPage() {
           </Button>
         </form>
 
-        <p className="text-xs text-muted-foreground mt-6 leading-relaxed">
-          Pour ajouter un autre admin, cree d'abord son utilisateur dans Supabase
-          Auth puis ajoute son `user_id` et son email dans la table `admin_users`.
+        <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
+          Pour ajouter un autre admin, cree d&apos;abord son utilisateur dans
+          Supabase Auth puis ajoute son <code>user_id</code> et son email dans la
+          table <code>admin_users</code>.
         </p>
       </div>
     </div>

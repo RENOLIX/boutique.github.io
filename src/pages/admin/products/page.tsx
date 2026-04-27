@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import BrandLogo from "@/components/shop/BrandLogo";
 import { useShop } from "@/hooks/use-shop";
 import { Button } from "@/components/ui/button";
 
@@ -22,10 +23,18 @@ export default function AdminProductsPage() {
 
   return (
     <div className="p-4 md:p-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
-        <div>
-          <h1 className="font-serif text-2xl md:text-3xl font-bold">Produits</h1>
-          <p className="text-sm text-muted-foreground mt-1">{products.length} article(s)</p>
+      <div className="mb-8 flex flex-col gap-4 rounded-[28px] border border-border bg-white/80 p-5 shadow-[0_24px_70px_-52px_rgba(219,97,149,0.5)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-3">
+          <BrandLogo className="h-12 w-[150px]" />
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.34em] text-muted-foreground">
+              Mina admin
+            </p>
+            <h1 className="font-serif text-2xl font-bold md:text-3xl">Produits</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {products.length} article(s) dans la boutique
+            </p>
+          </div>
         </div>
         <Link to="/admin/products/new" className="sm:shrink-0">
           <Button size="lg" className="w-full sm:w-auto">
@@ -35,7 +44,7 @@ export default function AdminProductsPage() {
       </div>
 
       {products.length === 0 ? (
-        <div className="text-center py-16 md:py-24 border border-dashed border-border">
+        <div className="rounded-[28px] border border-dashed border-border bg-white/70 py-16 text-center md:py-24">
           <p className="font-serif text-xl mb-2">Aucun produit</p>
           <p className="text-sm text-muted-foreground mb-6">
             Commencez par ajouter votre premier article.
@@ -50,7 +59,10 @@ export default function AdminProductsPage() {
         <>
           <div className="grid grid-cols-1 gap-4 md:hidden">
             {products.map((product) => (
-              <article key={product.id} className="border border-border bg-white p-4">
+              <article
+                key={product.id}
+                className="rounded-[24px] border border-border bg-white/85 p-4 shadow-[0_20px_60px_-54px_rgba(219,97,149,0.7)]"
+              >
                 <div className="flex gap-4">
                   {product.images[0] ? (
                     <img
@@ -105,19 +117,19 @@ export default function AdminProductsPage() {
                 <div className="grid grid-cols-3 gap-2 mt-4">
                   <Link
                     to={`/shop/product/${product.id}`}
-                    className="h-10 border border-border inline-flex items-center justify-center gap-2 text-xs uppercase tracking-[0.18em]"
+                    className="inline-flex h-10 items-center justify-center gap-2 border border-border bg-white/75 text-xs uppercase tracking-[0.18em]"
                   >
                     <Eye className="h-4 w-4" /> Voir
                   </Link>
                   <Link
                     to={`/admin/products/${product.id}`}
-                    className="h-10 border border-border inline-flex items-center justify-center gap-2 text-xs uppercase tracking-[0.18em]"
+                    className="inline-flex h-10 items-center justify-center gap-2 border border-border bg-white/75 text-xs uppercase tracking-[0.18em]"
                   >
                     <Pencil className="h-4 w-4" /> Edit
                   </Link>
                   <button
                     type="button"
-                    className="h-10 border border-red-200 text-red-600 inline-flex items-center justify-center gap-2 text-xs uppercase tracking-[0.18em]"
+                    className="inline-flex h-10 items-center justify-center gap-2 border border-red-200 bg-red-50 text-red-600 text-xs uppercase tracking-[0.18em]"
                     onClick={() => void handleDelete(product.id, product.name)}
                   >
                     <Trash2 className="h-4 w-4" /> Suppr
@@ -127,9 +139,9 @@ export default function AdminProductsPage() {
             ))}
           </div>
 
-          <div className="hidden md:block border border-border overflow-hidden">
+          <div className="hidden overflow-hidden rounded-[28px] border border-border bg-white/80 shadow-[0_24px_70px_-54px_rgba(219,97,149,0.55)] md:block">
             <table className="w-full text-sm">
-              <thead className="bg-muted">
+              <thead className="bg-[#fff4f8]">
                 <tr>
                   <th className="text-left px-4 py-3 text-xs font-semibold tracking-widest uppercase">
                     Produit
@@ -153,7 +165,7 @@ export default function AdminProductsPage() {
               </thead>
               <tbody className="divide-y divide-border">
                 {products.map((product) => (
-                  <tr key={product.id} className="hover:bg-muted/50 transition-colors">
+                  <tr key={product.id} className="transition-colors hover:bg-[#fff7fa]">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         {product.images[0] ? (
@@ -199,21 +211,21 @@ export default function AdminProductsPage() {
                       <div className="flex items-center justify-end gap-1">
                         <Link
                           to={`/shop/product/${product.id}`}
-                          className="h-8 w-8 inline-flex items-center justify-center hover:bg-muted"
+                          className="inline-flex h-8 w-8 items-center justify-center hover:bg-[#fff0f6]"
                           title="Voir"
                         >
                           <Eye className="h-3.5 w-3.5" />
                         </Link>
                         <Link
                           to={`/admin/products/${product.id}`}
-                          className="h-8 w-8 inline-flex items-center justify-center hover:bg-muted"
+                          className="inline-flex h-8 w-8 items-center justify-center hover:bg-[#fff0f6]"
                           title="Modifier"
                         >
                           <Pencil className="h-3.5 w-3.5" />
                         </Link>
                         <button
                           type="button"
-                          className="h-8 w-8 inline-flex items-center justify-center text-red-600 hover:bg-red-50"
+                          className="inline-flex h-8 w-8 items-center justify-center text-red-600 hover:bg-red-50"
                           onClick={() => void handleDelete(product.id, product.name)}
                           title="Supprimer"
                         >
