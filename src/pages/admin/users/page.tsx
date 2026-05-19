@@ -42,8 +42,8 @@ export default function AdminUsersPage() {
 
       toast.success(
         result.needsEmailConfirmation
-          ? "Utilisateur cree. Il devra confirmer son email avant connexion."
-          : "Utilisateur ajoute au panel admin.",
+          ? "Utilisateur cree. Desactive Confirm email dans Supabase pour une connexion directe sans verification."
+          : "Utilisateur ajoute. Il peut se connecter directement.",
       );
       setEmail("");
       setPassword("");
@@ -149,6 +149,12 @@ export default function AdminUsersPage() {
               Le role <strong>administrateur</strong> peut gerer les produits,
               les commandes et les utilisateurs. Le role <strong>employe</strong>
               peut uniquement voir les commandes et imprimer les bordereaux.
+            </div>
+
+            <div className="rounded-[20px] border border-border bg-white p-4 text-xs leading-relaxed text-muted-foreground">
+              Pour que les comptes crees ici se connectent sans email de verification,
+              desactive <strong>Confirm email</strong> dans
+              <strong> Supabase &gt; Authentication &gt; Providers &gt; Email</strong>.
             </div>
 
             <Button type="submit" size="lg" disabled={submitting} className="w-full">
