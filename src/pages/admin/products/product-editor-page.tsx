@@ -12,6 +12,7 @@ import type { ProductCategory } from "@/types";
 
 const MAX_IMAGES = 8;
 const DEFAULT_PRODUCT_CATEGORY: ProductCategory = "femme";
+const NEW_PRODUCT_DRAFT_KEY = "mina-admin-product-draft-new-v1";
 
 const EMPTY_FORM = {
   name: "",
@@ -26,6 +27,58 @@ const EMPTY_FORM = {
   featured: false,
   active: true,
 };
+
+type ProductEditorDraft = {
+  form: typeof EMPTY_FORM;
+  enableSizes: boolean;
+  enableShoeSizes: boolean;
+  enableColors: boolean;
+};
+
+function readNewProductDraft(): ProductEditorDraft | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const rawDraft = window.localStorage.getItem(NEW_PRODUCT_DRAFT_KEY);
+    if (!rawDraft) {
+      return null;
+    }
+
+    const parsedDraft = JSON.parse(rawDraft) as Partial<ProductEditorDraft>;
+    const parsedForm = parsedDraft.form ?? EMPTY_FORM;
+
+    return {
+      form: {
+        ...EMPTY_FORM,
+        ...parsedForm,
+        images: Array.isArray(parsedForm.images) ? parsedForm.images.map(String) : [],
+      },
+      enableSizes: Boolean(parsedDraft.enableSizes),
+      enableShoeSizes: Boolean(parsedDraft.enableShoeSizes),
+      enableColors: Boolean(parsedDraft.enableColors),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function saveNewProductDraft(draft: ProductEditorDraft) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.setItem(NEW_PRODUCT_DRAFT_KEY, JSON.stringify(draft));
+}
+
+function clearNewProductDraft() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.removeItem(NEW_PRODUCT_DRAFT_KEY);
+}
 
 function parseCsv(value: string) {
   return value
@@ -90,6 +143,7 @@ export default function AdminProductEditorPage() {
   const [enableSizes, setEnableSizes] = useState(false);
   const [enableShoeSizes, setEnableShoeSizes] = useState(false);
   const [enableColors, setEnableColors] = useState(false);
+  const [draftReady, setDraftReady] = useState(false);
 
   if (!canManageProducts) {
     return <Navigate to="/admin/orders" replace />;
@@ -97,10 +151,13 @@ export default function AdminProductEditorPage() {
 
   useEffect(() => {
     if (isNew) {
-      setForm(EMPTY_FORM);
-      setEnableSizes(false);
-      setEnableShoeSizes(false);
-      setEnableColors(false);
+      const savedDraft = readNewProductDraft();
+
+      setForm(savedDraft?.form ?? EMPTY_FORM);
+      setEnableSizes(savedDraft?.enableSizes ?? false);
+      setEnableShoeSizes(savedDraft?.enableShoeSizes ?? false);
+      setEnableColors(savedDraft?.enableColors ?? false);
+      setDraftReady(true);
       return;
     }
 
@@ -124,7 +181,21 @@ export default function AdminProductEditorPage() {
     setEnableSizes(product.sizes.length > 0);
     setEnableShoeSizes(product.shoeSizes.length > 0);
     setEnableColors(product.colors.length > 0);
+    setDraftReady(false);
   }, [isNew, product]);
+
+  useEffect(() => {
+    if (!isNew || !draftReady) {
+      return;
+    }
+
+    saveNewProductDraft({
+      form,
+      enableSizes,
+      enableShoeSizes,
+      enableColors,
+    });
+  }, [draftReady, enableColors, enableShoeSizes, enableSizes, form, isNew]);
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -211,6 +282,7 @@ export default function AdminProductEditorPage() {
     try {
       if (isNew) {
         const created = await createProduct(payload);
+        clearNewProductDraft();
         toast.success("Produit cree");
         navigate(`/admin/products/${created.id}`, { replace: true });
       } else if (id) {
