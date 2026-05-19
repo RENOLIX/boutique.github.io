@@ -151,12 +151,6 @@ export default function AdminUsersPage() {
               peut uniquement voir les commandes et imprimer les bordereaux.
             </div>
 
-            <div className="rounded-[20px] border border-border bg-white p-4 text-xs leading-relaxed text-muted-foreground">
-              Pour que les comptes crees ici se connectent sans email de verification,
-              desactive <strong>Confirm email</strong> dans
-              <strong> Supabase &gt; Authentication &gt; Providers &gt; Email</strong>.
-            </div>
-
             <Button type="submit" size="lg" disabled={submitting} className="w-full">
               <UserPlus className="h-4 w-4" />
               {submitting ? "Creation..." : "Creer l'utilisateur"}
